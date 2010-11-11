@@ -84,7 +84,8 @@ int arg_parseprimairy(int argc, char **argv)
         {
             printf("Usage: %s", progname);
             arg_print_syntax(stdout,argtable,"\n");
-            printf("This is a test irc commandline client\n");
+            printf("This is a test irc commandline client\n\n");
+            arg_print_glossary(stdout,argtable,"  %-30s %s\n");
             exitcode = 0;
             options.running = false;
         }
@@ -183,16 +184,10 @@ int arg_parsesecondary()
 				options.mode = both;
 				verbose_printf("setting mode to both\n");
 			}
-			else if (strncmp(mode->sval[0], "auto", 4) == 0)
-			{
-				options.mode = autodetect;
-				verbose_printf("setting mode to auto detect");
-			}
 			else
 			{
-				options.mode = autodetect;
+				options.mode = both;
 				exitcode = 1;
-                nsilent_printf("mode error; setting mode to auto\n");
 			}
         }
     }

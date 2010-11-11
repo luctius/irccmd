@@ -6,10 +6,13 @@
 #include <stdbool.h>
 
 #define verbose_printf(...) { if (options.verbose) printf("v- " __VA_ARGS__); }
+#define verbose_fprintf(...) { if (options.verbose) fprintf("v- " __VA_ARGS__); }
 #define debug_printf(...) { if (options.debug) printf("d- " __VA_ARGS__); }
+#define debug_fprintf(...) { if (options.debug) fprintf("d- " __VA_ARGS__); }
 #define nsilent_printf(...) { if (options.silent == false) printf(__VA_ARGS__); }
-//#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); }
-#define error(...) { fprintf(stdout, "e- " __VA_ARGS__); }
+#define nsilent_fprintf(...) { if (options.silent == false) fprintf(__VA_ARGS__); }
+#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); }
+#define warning(...) { if (options.silent == false) fprintf(stderr, "WARNING: " __VA_ARGS__); }
 
 enum modes
 {
@@ -17,7 +20,6 @@ enum modes
     input      = 1,
     output     = 2,
     both       = 3,
-    autodetect = 4,
 };
 
 struct config_options

@@ -20,7 +20,7 @@ struct config_options options;
      
 void sigfunc()
 {
-    verbose_printf("Received signal\n");
+    debug_printf("Received signal\n");
     options.running = false;
 }
 
@@ -41,11 +41,14 @@ void irc_mode_callback(irc_session_t *session, const char *event, const char *or
     verbose_printf("irc joined channel\n");
 }
 
-void irc_event_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
+void irc_channel_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
-    debug_printf("irc event: %s\n", event);
+    if ( (options.mode & output) > 0)
+    {
+        if (count >= 2)
+            printf("%s\n", params[1]);
+    }
 }
-
 
 size_t sgets(int fd, char *line, size_t size)
 {
@@ -76,11 +79,11 @@ int prog_main()
     irc_callbacks_t *callbacks = get_callback();
 
     callbacks->event_connect = irc_server_connect;
-    callbacks->event_channel = irc_event_callback;
+    callbacks->event_channel = irc_channel_callback;
     callbacks->event_mode    = irc_mode_callback;
 
-    tv.tv_sec = 0;
-    tv.tv_usec = 2;
+    tv.tv_sec = 10;
+    tv.tv_usec = 0;
 
     verbose_printf("starting main loop\n");
 
@@ -98,38 +101,34 @@ int prog_main()
 
         FD_ZERO(&readset);
         FD_ZERO(&writeset);
-        FD_SET(stdin_fd, &readset);
+        if ( ( (options.mode & input) > 0) && (options.connected) ) FD_SET(stdin_fd, &readset);
 
-        irc_update();
+        add_irc_descriptors(&readset, &writeset, &maxfd);
+        result = select(maxfd +1, &readset, &writeset, NULL, &tv);
 
-        if (options.connected)
+        if (result == 0)
         {
-            result = select(maxfd +1, &readset, &writeset, NULL, &tv);
-
-            if (options.running)
+        } 
+        else if (result < 0)
+        {
+            error("we've got an error on select\n");
+        }
+        else 
+        {
+            process_irc(&readset, &writeset);
+            if (FD_ISSET(stdin_fd, &readset) )
             {
-                if (result == 0)
-                {
-                } 
-                else if (result < 0)
-                {
-                    error("we've got an error on stdin\n");
-                }
-                else
-                {
-                    result = sgets(stdin_fd, buff, sizeof(buff) );
-                    verbose_printf("fetching data[%d]: %s\n", result, buff);
+                result = sgets(stdin_fd, buff, sizeof(buff) );
 
-                    if (result == 0) options.running = false;
-                    else if (result > 0)
-                    {
-                        verbose_printf("sending: %s\n", buff);
-                        irc_send_raw_msg(buff, options.channel);
-                    }
-                    usleep(20);
+                if (result == 0) options.running = false;
+                else if (result > 0)
+                {
+                    if (options.verbose) printf(".");
+                    irc_send_raw_msg(buff, options.channel);
                 }
             }
         }
+        usleep(100);
     }
 
     return close_irc_session();
@@ -184,9 +183,13 @@ int main(int argc, char **argv)
         }
     }
 /*---------------- Configuration code end--------------*/
+    {
+        const char *temp[] = {"input", "output", "both"};
 
-    /*give warnings about experimental options*/
-    if ( (options.mode == both) || (options.mode == autodetect) ) nsilent_printf("WARNING: this mode is experimental\n");
+        /*give warnings about experimental options*/
+        verbose_printf("mode is set to '%s'\n", temp[options.mode]);
+        if (options.mode == both) warning("mode '%s' is experimental\n", temp[options.mode]);
+    }
 
     /*let's fire it up*/
     if (options.running)

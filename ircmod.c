@@ -11,12 +11,18 @@ bool init_callbacks = false;
 
 void irc_general_event(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count)
 {
-	printf("irc general event: %s: %s\n", event, origin);
+	debug_printf("irc general event: %s: %s\n", event, origin);
 }
 
 void irc_general_event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count)
 {
-	printf("irc numeric event: %d: %s\n", event, origin);
+	debug_printf("irc numeric event: %d: %s\n", event, origin);
+
+    if (event == 433)
+    {
+        error("Nick allready in use\n");
+        options.running = false;
+    }
 }
 
 irc_callbacks_t *get_callback()
@@ -68,7 +74,6 @@ int add_irc_descriptors(fd_set *in_set, fd_set *out_set, int *maxfd)
 {
     int retval = 0;
 
-    //verbose_printf("adding irc descriptors\n");
     if ( (retval = irc_add_select_descriptors(session, in_set, out_set, maxfd) ) != 0)
     {
         error("add irc descriptors: %s\n", irc_strerror(irc_errno(session) ) );
@@ -80,7 +85,6 @@ int process_irc(fd_set *in_set, fd_set *out_set)
 {
     int retval =0;
 
-//    verbose_printf("processing  irc descriptors\n");
     if ( (retval = irc_process_select_descriptors(session, in_set, out_set) ) != 0)
     {
         error("process irc: %s\n", irc_strerror(irc_errno(session) ) );
@@ -101,50 +105,13 @@ int irc_send_raw_msg(const char *message, const char *channel)
 {
 	if (irc_is_connected(session) )
 	{
-        verbose_printf("sending irc message\n");
 		if (irc_cmd_msg(session, channel, message) != 0)
-		//if (irc_cmd_msg(session, "cor", message) != 0)
 		{
 			error("irc message: %s\n", irc_strerror(irc_errno(session) ) );
 		}
 		return 0;
 	}
 
-	debug_printf("sending irc message -- not connected\n");
 	return 1;
-}
-
-int irc_update()
-{
-    struct timeval tv;
-    fd_set readset;
-    fd_set writeset;
-    int maxfd = 0;
-    int result;
-
-    tv.tv_sec = 0;
-    tv.tv_usec = 2;
-    FD_ZERO(&readset);
-    FD_ZERO(&writeset);
-
-	if (irc_is_connected(session) )
-    {
-        add_irc_descriptors(&readset, &writeset, &maxfd);
-        result = select(maxfd +1, &readset, &writeset, NULL, &tv);
-
-        if (result == 0)
-        {
-        } 
-        else if (result < 0)
-        {
-            error("we've got an error on stdin\n");
-            return 1;
-        }
-        else
-        {
-            process_irc(&readset, &writeset);
-        }
-    }
-    return 0;
 }
 

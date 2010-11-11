@@ -113,7 +113,7 @@ static lua_State *conf_open(const char *file)
     {
         if (err == LUA_ERRFILE)
         {
-            nsilent_printf("WARNING: cannot access config file: %s\n", file);
+            warning("cannot access config file: %s\n", file);
         }
         else if (err == LUA_ERRSYNTAX)
         {
@@ -173,33 +173,12 @@ int read_config_file()
         options.silent   = lua_boolexpr(L   , "settings.silent"   , CONFIG_SILENT);
         options.verbose  = lua_boolexpr(L   , "settings.verbose"  , CONFIG_VERBOSE);
         options.debug    = lua_boolexpr(L   , "settings.debug"    , CONFIG_DEBUG);
-        const char *mode = lua_stringexpr(L , "settings.mode"     , NULL );
 
         lua_intexpr(L                       , "settings.port"     , &options.port);
         options.server   = lua_stringexpr(L , "settings.server"   , CONFIG_SERVER);
         options.channel  = lua_stringexpr(L , "settings.channel"  , CONFIG_CHANNEL);
         options.botname  = lua_stringexpr(L , "settings.name"     , CONFIG_BOTNAME);
 //        options.password = lua_stringexpr(L , "settings.password" , CONFIG_PASSWORD);
-
-        if (mode != NULL)
-        {
-            if (strncmp(mode, "in", 2) == 0)
-            {
-                options.mode = input;
-            }
-            else if (strncmp(mode, "out", 3) == 0)
-            {
-                options.mode = output;
-            }
-            else if (strncmp(mode, "both", 4) == 0)
-            {
-                options.mode = both;
-            }
-            else if (strncmp(mode, "auto", 4) == 0)
-            {
-                options.mode = autodetect;
-            }
-        }
 
         lua_close(L);
     }
