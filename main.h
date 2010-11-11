@@ -1,0 +1,44 @@
+#ifndef main_h_
+#define main_h_
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#define verbose_printf(...) { if (options.verbose) printf("v- " __VA_ARGS__); }
+#define debug_printf(...) { if (options.debug) printf("d- " __VA_ARGS__); }
+#define nsilent_printf(...) { if (options.silent == false) printf(__VA_ARGS__); }
+//#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); }
+#define error(...) { fprintf(stdout, "e- " __VA_ARGS__); }
+
+enum modes
+{
+    none       = 0,
+    input      = 1,
+    output     = 2,
+    both       = 3,
+    autodetect = 4,
+};
+
+struct config_options
+{
+    bool running;
+    bool connected;
+
+    const char *configfile;
+    enum modes mode;
+    bool verbose;
+    bool debug;
+    bool silent;
+
+    int port;
+    const char *server;
+    const char *channel;
+    const char *serverpassword;
+    const char *channelpassword;
+    const char *botname;
+};
+
+extern struct config_options options;
+
+#endif /* main_h_ */

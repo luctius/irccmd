@@ -1,0 +1,25 @@
+#ifndef configdefaults_h_
+#define configdefaults_h_
+
+#include "main.h"
+
+#define STR(s) #s
+#define XSTR(s) STR(s)
+#define PROG_STRING (XSTR(PROGNAME) )
+
+#define CONFIG_FILE     "~/.irccmd.conf"
+#define CONFIG_VERBOSE  false
+#define CONFIG_DEBUG    false
+#define CONFIG_SILENT   false
+
+#define CONFIG_MODE     input
+#define CONFIG_PORT     6667
+#define CONFIG_SERVER   "irc.incas3.nl"
+#define CONFIG_BOTNAME  "omega"
+#define CONFIG_CHANNEL  "#spam"
+#define CONFIG_SERVERPASSWORD ""
+#define CONFIG_CHANNELPASSWORD ""
+
+void setdefaults(struct config_options *op);
+
+#endif /* configdefaults_h_ */
