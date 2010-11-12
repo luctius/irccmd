@@ -2,10 +2,11 @@
 #define configdefaults_h_
 
 #include "main.h"
+#include "def.h"
 
 #define STR(s) #s
 #define XSTR(s) STR(s)
-#define PROG_STRING (XSTR(PROGNAME) )
+#define PROG_STRING (XSTR(PACKAGE) )
 
 #define CONFIG_FILE     "~/.irccmd.conf"
 #define CONFIG_VERBOSE  false

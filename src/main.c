@@ -202,7 +202,6 @@ int main(int argc, char **argv)
 
         /*give warnings about experimental options*/
         verbose_printf("mode is set to '%s'\n", temp[options.mode]);
-        if (options.mode == both) warning("mode '%s' is experimental\n", temp[options.mode]);
     }
 
     /*let's fire it up*/

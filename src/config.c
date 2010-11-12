@@ -113,7 +113,7 @@ static lua_State *conf_open(const char *file)
     {
         if (err == LUA_ERRFILE)
         {
-            warning("cannot access config file: %s\n", file);
+            //warning("cannot access config file: %s\n", file);
         }
         else if (err == LUA_ERRSYNTAX)
         {
@@ -168,19 +168,22 @@ int read_config_file()
     lua_State *L = conf_open(options.configfile);
     int errorcode = 0;
     
+    if (L == NULL) L = conf_open("/etc/irccmd.conf");
+
     if (L != NULL)
     {
-        options.silent      = lua_boolexpr(L   , "settings.silent"      , CONFIG_SILENT);
-        options.verbose     = lua_boolexpr(L   , "settings.verbose"     , CONFIG_VERBOSE);
-        options.debug       = lua_boolexpr(L   , "settings.debug"       , CONFIG_DEBUG);
+        options.silent          = lua_boolexpr(L   , "settings.silent"          , CONFIG_SILENT);
+        options.verbose         = lua_boolexpr(L   , "settings.verbose"         , CONFIG_VERBOSE);
+        options.debug           = lua_boolexpr(L   , "settings.debug"           , CONFIG_DEBUG);
 
-        options.showchannel = lua_boolexpr(L   , "settings.showchannel" , CONFIG_SHOWCHANNEL);
-        options.shownick    = lua_boolexpr(L   , "settings.shownick"    , CONFIG_SHOWNICK);
-        options.server      = lua_stringexpr(L , "settings.server"      , CONFIG_SERVER);
-        options.channel     = lua_stringexpr(L , "settings.channel"     , CONFIG_CHANNEL);
-        options.botname     = lua_stringexpr(L , "settings.name"        , CONFIG_BOTNAME);
-        lua_intexpr(L                          , "settings.port"        , &options.port);
-//        options.password = lua_stringexpr(L , "settings.password" , CONFIG_PASSWORD);
+        options.showchannel     = lua_boolexpr(L   , "settings.showchannel"     , CONFIG_SHOWCHANNEL);
+        options.shownick        = lua_boolexpr(L   , "settings.shownick"        , CONFIG_SHOWNICK);
+        options.server          = lua_stringexpr(L , "settings.server"          , CONFIG_SERVER);
+        options.channel         = lua_stringexpr(L , "settings.channel"         , CONFIG_CHANNEL);
+        options.botname         = lua_stringexpr(L , "settings.name"            , CONFIG_BOTNAME);
+        options.serverpassword  = lua_stringexpr(L , "settings.serverpassword"  , CONFIG_SERVERPASSWORD);
+        options.channelpassword = lua_stringexpr(L , "settings.channelpassword" , CONFIG_CHANNELPASSWORD);
+        lua_intexpr(L                              , "settings.port"            , &options.port);
 
         lua_close(L);
     }
