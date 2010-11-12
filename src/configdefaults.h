@@ -24,6 +24,4 @@
 #define CONFIG_SERVERPASSWORD ""
 #define CONFIG_CHANNELPASSWORD ""
 
-void setdefaults(struct config_options *op);
-
 #endif /* configdefaults_h_ */

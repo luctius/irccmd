@@ -16,7 +16,26 @@
 #include "configdefaults.h"
 #include "ircmod.h"
 
-struct config_options options;
+struct config_options options =
+{
+    .connected       = false,
+    .silent          = CONFIG_SILENT,
+    .debug           = CONFIG_DEBUG,
+    .verbose         = CONFIG_VERBOSE,
+    .configfile      = CONFIG_FILE,
+
+
+    .showchannel     = CONFIG_SHOWCHANNEL,
+    .shownick        = CONFIG_SHOWNICK,
+
+    .mode            = CONFIG_MODE,
+    .port            = CONFIG_PORT,
+    .server          = CONFIG_SERVER,
+    .serverpassword  = CONFIG_SERVERPASSWORD,
+    .channel         = CONFIG_CHANNEL,
+    .channelpassword = CONFIG_CHANNELPASSWORD,
+    .botname         = CONFIG_BOTNAME,
+};
      
 void sigfunc()
 {
@@ -164,7 +183,6 @@ int main(int argc, char **argv)
 
 /*---------------- Configuration code -----------------*/
     /*set options to defaults*/
-    setdefaults(&options);
     options.running = true;
 
     /*parse command line and set primairy options*/
