@@ -6,7 +6,7 @@
 
 #define STR(s) #s
 #define XSTR(s) STR(s)
-#define PROG_STRING (XSTR(PACKAGE) )
+#define PROG_STRING PACKAGE
 
 #define CONFIG_FILE     "~/.irccmd.conf"
 #define CONFIG_VERBOSE  false

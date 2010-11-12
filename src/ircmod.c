@@ -11,7 +11,10 @@ bool init_callbacks = false;
 
 void irc_general_event(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count)
 {
-	debug_printf("irc general event: %s: %s\n", event, origin);
+    if (count == 0) debug_printf("irc general event: %s: %s\n", event, origin);
+    if (count == 1) debug_printf("irc general event: %s: %s: %s\n", event, origin, params[0]);
+    if (count == 2) debug_printf("irc general event: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
+    if (count >= 3) debug_printf("irc general event: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
 }
 
 void irc_general_event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count)

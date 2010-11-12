@@ -22,7 +22,10 @@ struct arg_lit  *version;
 struct arg_end  *end;
 void *argtable[20];
 
-static int arg_clean()
+/** 
+* Frees the argtable memory allocations.
+*/
+static void arg_clean()
 {
     /* deallocate each non-null entry in argtable[] */
     arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));

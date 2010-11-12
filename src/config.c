@@ -6,9 +6,15 @@
 #include "configdefaults.h"
 
 /** 
-Evaluates a Lua expression and returns the string result. 
-If an error occurs or the result is not string, def is returned. 
-*/  
+* Evaluates a Lua expression and returns the string result. 
+* If an error occurs or the result is not string, def is returned. 
+* 
+* @param L the lua_State in which the string resides.
+* @param expr the lua expression to retreive the string
+* @param def the default string should the State not contain the expression given
+* 
+* @return a pointer towards the asked string.
+*/
 static const char* lua_stringexpr(lua_State *L, const char *expr, const char *def)
 {
     const char* r = def;
@@ -33,6 +39,15 @@ static const char* lua_stringexpr(lua_State *L, const char *expr, const char *de
     return r;
 }  
 
+/** 
+* Evaluates a Lua expression and returns the number result. 
+* 
+* @param L the lua_State in which the number resides.
+* @param expr the lua expression to retreive the number
+* @param out the result of the expression.
+* 
+* @return zero on succes, otherwise 1.
+*/
 static int lua_numberexpr(lua_State *L, const char *expr, double *out)
 {
     int ok = 0;
@@ -59,6 +74,16 @@ static int lua_numberexpr(lua_State *L, const char *expr, double *out)
     return ok;
 }
 
+/** 
+* Evaluates a Lua expression and returns the int result. 
+* This uses lua_numberexpr underwater.
+* 
+* @param L the lua_State in which the int resides.
+* @param expr the lua expression to retreive the int
+* @param out the result of the expression
+* 
+* @return zero on succes, otherwise 1.
+*/
 static int lua_intexpr(lua_State* L, const char* expr, int* out)
 {
     double d;
@@ -72,6 +97,16 @@ static int lua_intexpr(lua_State* L, const char* expr, int* out)
     return ok;
 }
 
+/** 
+* Evaluates a Lua expression and returns the bool result. 
+* If an error occurs or the result is not bool, def is returned. 
+* 
+* @param L the lua_State in which the bool resides.
+* @param expr the lua expression to retreive the bool
+* @param def the default bool should the State not contain the expression given
+* 
+* @return the bool retreived from lua via the expression
+*/
 static int lua_boolexpr(lua_State* L, const char* expr, bool def)
 {
     int ok = def;
@@ -97,6 +132,13 @@ static int lua_boolexpr(lua_State* L, const char* expr, bool def)
     return ok;
 }
 
+/** 
+* Opens the given file, and executes it within a Lua Context.
+* 
+* @param file A path and file towards the config file.
+* 
+* @return returns the lua_State on succes or NULL otherwise.
+*/
 static lua_State *conf_open(const char *file)
 {
     int err = 0;
@@ -168,7 +210,7 @@ int read_config_file()
     lua_State *L = conf_open(options.configfile);
     int errorcode = 0;
     
-    if (L == NULL) L = conf_open("/etc/irccmd.conf");
+//    if (L == NULL) L = conf_open("/etc/irccmd.conf");
 
     if (L != NULL)
     {

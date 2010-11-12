@@ -172,8 +172,6 @@ int main(int argc, char **argv)
     struct sigaction setmask;
     int exitcode = 0;
 
-    memset(&options, 0, sizeof(options) );
-
     /*initialise signal handler*/
     sigemptyset( &setmask.sa_mask );
     setmask.sa_handler = sigfunc;
