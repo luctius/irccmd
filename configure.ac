@@ -5,6 +5,9 @@ AC_PROG_CC
 AC_CHECK_LIB( [ lua5.1],    [ luaL_newstate],      [ ], [ echo "Error! liblua5.1 is required."    ; exit -1 ])
 AC_CHECK_LIB( [ argtable2], [ arg_parse],          [ ], [ echo "Error! libargtable2 is required." ; exit -1 ])
 AC_CHECK_LIB( [ ircclient], [ irc_create_session], [ ], [ echo "Error! libircclient is required." ; exit -1 ])
+AC_CHECK_LIB( [ lua5.1],    [ luaL_newstate] )
+AC_CHECK_LIB( [ argtable2], [ arg_parse] )
+AC_CHECK_LIB( [ ircclient], [ irc_create_session] )
 
 AC_CHECK_HEADERS([stdbool.h])
 AC_CHECK_HEADERS([signal.h])
