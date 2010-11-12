@@ -8,6 +8,10 @@ void setdefaults(struct config_options *op)
     op->verbose         = CONFIG_VERBOSE;
     op->configfile      = CONFIG_FILE;
 
+
+    op->showchannel     = CONFIG_SHOWCHANNEL;
+    op->shownick        = CONFIG_SHOWNICK;
+
     op->mode            = CONFIG_MODE;
     op->port            = CONFIG_PORT;
     op->server          = CONFIG_SERVER;

@@ -170,14 +170,16 @@ int read_config_file()
     
     if (L != NULL)
     {
-        options.silent   = lua_boolexpr(L   , "settings.silent"   , CONFIG_SILENT);
-        options.verbose  = lua_boolexpr(L   , "settings.verbose"  , CONFIG_VERBOSE);
-        options.debug    = lua_boolexpr(L   , "settings.debug"    , CONFIG_DEBUG);
+        options.silent      = lua_boolexpr(L   , "settings.silent"      , CONFIG_SILENT);
+        options.verbose     = lua_boolexpr(L   , "settings.verbose"     , CONFIG_VERBOSE);
+        options.debug       = lua_boolexpr(L   , "settings.debug"       , CONFIG_DEBUG);
 
-        lua_intexpr(L                       , "settings.port"     , &options.port);
-        options.server   = lua_stringexpr(L , "settings.server"   , CONFIG_SERVER);
-        options.channel  = lua_stringexpr(L , "settings.channel"  , CONFIG_CHANNEL);
-        options.botname  = lua_stringexpr(L , "settings.name"     , CONFIG_BOTNAME);
+        options.showchannel = lua_boolexpr(L   , "settings.showchannel" , CONFIG_SHOWCHANNEL);
+        options.shownick    = lua_boolexpr(L   , "settings.shownick"    , CONFIG_SHOWNICK);
+        options.server      = lua_stringexpr(L , "settings.server"      , CONFIG_SERVER);
+        options.channel     = lua_stringexpr(L , "settings.channel"     , CONFIG_CHANNEL);
+        options.botname     = lua_stringexpr(L , "settings.name"        , CONFIG_BOTNAME);
+        lua_intexpr(L                          , "settings.port"        , &options.port);
 //        options.password = lua_stringexpr(L , "settings.password" , CONFIG_PASSWORD);
 
         lua_close(L);

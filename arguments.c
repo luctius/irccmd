@@ -9,7 +9,10 @@ struct arg_int  *port;
 struct arg_str  *server;
 struct arg_str  *channel;
 struct arg_str  *botname;
-struct arg_str  *password;
+struct arg_str  *serverpassword;
+struct arg_str  *channelpassword;
+struct arg_lit  *showchannel;
+struct arg_lit  *shownick;
 
 struct arg_lit  *silent;
 struct arg_lit  *verbose;
@@ -28,20 +31,22 @@ static int arg_clean()
 
 int arg_parseprimairy(int argc, char **argv)
 {
-    help     = arg_lit0(NULL , "help"    , "print this help and exit");
-    version  = arg_lit0(NULL , "version" , "print version information and exit");
-    verbose  = arg_lit0("v"  , "verbose" , "verbose messages");
-    debug    = arg_lit0("d"  , "debug"   , "debug messages");
-    silent   = arg_lit0("s"  , "silent"  , "program will only output errors");
-    config   = arg_file0("c" , "config"  , CONFIG_FILE                            , "override default config file");
-    end      = arg_end(20);
-
-    port     = arg_int0("p"  , "port"    , "port" XSTR(CONFIG_PORT)               , "set the port of the irc server");
-    mode     = arg_str0("m"  , "mode"    , "in/out/auto/both"                     , "set the mode, input, output, auto detect or both");
-    server   = arg_str0(NULL , "server"  , CONFIG_SERVER                          , "set the irc server");
-    channel  = arg_str0(NULL , "channel" , CONFIG_CHANNEL                         , "set the irc channel");
-    botname  = arg_str0(NULL , "name"    , CONFIG_BOTNAME                         , "set the botname");
-    password = arg_str0(NULL , "pasword" , "password"                             , "set the password");
+    help            = arg_lit0(NULL , "help"            , "print this help and exit");
+    version         = arg_lit0(NULL , "version"         , "print version information and exit");
+    verbose         = arg_lit0("v"  , "verbose"         , "verbose messages");
+    debug           = arg_lit0("d"  , "debug"           , "debug messages");
+    silent          = arg_lit0("s"  , "silent"          , "program will only output errors");
+    showchannel     = arg_lit0(NULL , "showchannel"     , "show channel when printing irc messages to stdout");
+    shownick        = arg_lit0(NULL , "shownick"        , "show nick from sender when printing irc messages to stdout");
+    config          = arg_file0("c" , "config"          , CONFIG_FILE                 , "override default config file");
+    port            = arg_int0("p"  , "port"            , "port" XSTR(CONFIG_PORT)    , "set the port of the irc server");
+    mode            = arg_str0("m"  , "mode"            , "in/out/both"               , "set the mode, input, output or both");
+    server          = arg_str0(NULL , "server"          , CONFIG_SERVER               , "set the irc server");
+    channel         = arg_str0(NULL , "channel"         , CONFIG_CHANNEL              , "set the irc channel");
+    botname         = arg_str0(NULL , "name"            , CONFIG_BOTNAME              , "set the botname");
+    serverpassword  = arg_str0(NULL , "serverpassword"  , "password"                  , "set the password for the server");
+    channelpassword = arg_str0(NULL , "channelpassword" , "password"                  , "set the password for the channel");
+    end             = arg_end(20);
 
     const char* progname = PROG_STRING;
     int exitcode = 0;
@@ -61,7 +66,10 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = server;
         argtable[i++] = channel;
         argtable[i++] = botname;
-        argtable[i++] = password;
+        argtable[i++] = serverpassword;
+        argtable[i++] = channelpassword;
+        argtable[i++] = showchannel;
+        argtable[i++] = shownick;
 
         argtable[i++] = end;
     }
@@ -83,7 +91,7 @@ int arg_parseprimairy(int argc, char **argv)
         if (options.running)
         {
             printf("Usage: %s", progname);
-            arg_print_syntax(stdout,argtable,"\n");
+            arg_print_syntaxv(stdout,argtable,"\n");
             printf("This is a test irc commandline client\n\n");
             arg_print_glossary(stdout,argtable,"  %-30s %s\n");
             exitcode = 0;
@@ -228,15 +236,42 @@ int arg_parsesecondary()
 		}
 	}
 	
-    if (password->count > 0)
+    if (serverpassword->count > 0)
 	{
         if (options.running)
         {
-//			options.password = password->sval[0];
-			verbose_printf("using different password\n");
-			verbose_printf("password not supported at this moment\n");
+			options.serverpassword = serverpassword->sval[0];
+			verbose_printf("using different server password\n");
 		}
 	}
+
+    if (channelpassword->count > 0)
+	{
+        if (options.running)
+        {
+			options.channelpassword = channelpassword->sval[0];
+			verbose_printf("using different channel password\n");
+		}
+	}
+
+    if (showchannel->count > 0)
+    {
+        if (options.running)
+        {
+            options.showchannel = true;
+			verbose_printf("messages from irc now contain the originating channel\n");
+        }
+    }
+
+    if (shownick->count > 0)
+    {
+        if (options.running)
+        {
+            options.shownick = true;
+			verbose_printf("messages from irc now contain the originating nick\n");
+        }
+    }
+
     arg_clean();
 
     return exitcode;

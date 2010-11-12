@@ -33,6 +33,9 @@ struct config_options
     bool debug;
     bool silent;
 
+    bool showchannel;
+    bool shownick;
+
     int port;
     const char *server;
     const char *channel;
@@ -44,3 +47,4 @@ struct config_options
 extern struct config_options options;
 
 #endif /* main_h_ */
+

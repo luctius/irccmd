@@ -62,8 +62,7 @@ int create_irc_session()
 	session = irc_create_session(&callbacks);
 
 	verbose_printf("connecting to server: %s:%d\n", options.server, options.port);
-	retval = irc_connect(session, options.server, options.port, NULL, options.botname, PROG_STRING, PROG_STRING);
-	//retval = irc_connect(session, options.server, options.port, options.serverpassword, options.botname, NULL, NULL);
+	retval = irc_connect(session, options.server, options.port, options.serverpassword, options.botname, PROG_STRING, PROG_STRING);
 	if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
 
 	verbose_printf("irc session is ready\n");

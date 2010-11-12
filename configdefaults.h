@@ -12,6 +12,9 @@
 #define CONFIG_DEBUG    false
 #define CONFIG_SILENT   false
 
+#define CONFIG_SHOWCHANNEL  false
+#define CONFIG_SHOWNICK     false
+
 #define CONFIG_MODE     both
 #define CONFIG_PORT     6667
 #define CONFIG_SERVER   "irc.incas3.nl"

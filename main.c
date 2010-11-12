@@ -46,7 +46,21 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
     if ( (options.mode & output) > 0)
     {
         if (count >= 2)
-            printf("%s\n", params[1]);
+        {
+            if (options.showchannel && options.shownick)
+            {
+                printf("%s - %s: %s\n", origin, params[0], params[1]);
+            }
+            else if (options.showchannel)
+            {
+                printf("%s - %s\n", origin, params[1]);
+            }
+            else if (options.shownick)
+            {
+                printf("%s: %s\n", params[0], params[1]);
+            }
+            else printf("%s\n", params[1]);
+        }
     }
 }
 
@@ -184,7 +198,7 @@ int main(int argc, char **argv)
     }
 /*---------------- Configuration code end--------------*/
     {
-        const char *temp[] = {"input", "output", "both"};
+        const char *temp[] = {"none", "input", "output", "both"};
 
         /*give warnings about experimental options*/
         verbose_printf("mode is set to '%s'\n", temp[options.mode]);
