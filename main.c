@@ -49,15 +49,15 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
         {
             if (options.showchannel && options.shownick)
             {
-                printf("%s - %s: %s\n", origin, params[0], params[1]);
+                printf("%s - %s: %s\n", params[0], origin, params[1]);
             }
             else if (options.showchannel)
             {
-                printf("%s - %s\n", origin, params[1]);
+                printf("%s - %s\n", params[0], params[1]);
             }
             else if (options.shownick)
             {
-                printf("%s: %s\n", params[0], params[1]);
+                printf("%s: %s\n", origin, params[1]);
             }
             else printf("%s\n", params[1]);
         }
