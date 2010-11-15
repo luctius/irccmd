@@ -104,9 +104,11 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
     {
         if (count >= 2)
         {
+            char nick[100];
+            irc_target_get_nick(origin, nick, sizeof(nick) -1);
             if (options.showchannel && options.shownick)
             {
-                printf("%s - %s: %s\n", params[0], origin, params[1]);
+                printf("%s - %s: %s\n", params[0], nick, params[1]);
             }
             else if (options.showchannel)
             {
@@ -114,7 +116,7 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
             }
             else if (options.shownick)
             {
-                printf("%s: %s\n", origin, params[1]);
+                printf("%s: %s\n", nick, params[1]);
             }
             else printf("%s\n", params[1]);
         }
