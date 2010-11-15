@@ -205,12 +205,18 @@ static lua_State *conf_open(const char *file)
     return L;
 }
 
+/** 
+* This reads the default config file, or the system default if the first is not found.
+* When either is read, the application settings are read from file or their defaults are used.
+* 
+* @return returns 0 on succes or 1 on failure.
+*/
 int read_config_file()
 {
     lua_State *L = conf_open(options.configfile);
     int errorcode = 0;
     
-//    if (L == NULL) L = conf_open("/etc/irccmd.conf");
+    if (L == NULL) L = conf_open("/etc/irccmd.conf");
 
     if (L != NULL)
     {

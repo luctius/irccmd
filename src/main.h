@@ -14,6 +14,11 @@
 #define error(...) { fprintf(stderr, "e- " __VA_ARGS__); }
 #define warning(...) { if (options.silent == false) fprintf(stderr, "WARNING: " __VA_ARGS__); }
 
+
+/** 
+* This enum is used to determine in which mode the application is running.
+*this is ued by the application to turn off or on several functions.
+*/
 enum modes
 {
     none       = 0,
@@ -22,6 +27,9 @@ enum modes
     both       = 3,
 };
 
+/** 
+* This struct contains the application specific settings.
+*/
 struct config_options
 {
     bool running;

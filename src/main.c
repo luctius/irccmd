@@ -16,6 +16,10 @@
 #include "configdefaults.h"
 #include "ircmod.h"
 
+/** 
+* This is the config structure where all the important configuration options are located.
+* This structure is used globally.
+*/
 struct config_options options =
 {
     .connected       = false,
@@ -37,12 +41,26 @@ struct config_options options =
     .botname         = CONFIG_BOTNAME,
 };
      
+/** 
+* A simple signal replacement for SIGINT and SIGHUP.
+* when called, this will gracefully end the program.
+*/
 void sigfunc()
 {
     debug_printf("Received signal\n");
     options.running = false;
 }
 
+/** 
+* This callback is called when the irc connection with the server is established.
+* We will do things here like joining a channel and logging in at userserv
+* 
+* @param session This will provide the irc session
+* @param event This contains what kind of event the callback triggers
+* @param origin Contains the sender of this event
+* @param params The parameters of the event, can be zero.
+* @param count The number of parameters.
+*/
 void irc_server_connect(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     int retval = 0;
@@ -54,12 +72,32 @@ void irc_server_connect(irc_session_t *session, const char *event, const char *o
 	if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
 }
 
+/** 
+* This callback is called when we have joined a channel.
+* We will notify the configuration structure that we are active now and ready to process input and output.
+* 
+* @param session This will provide the irc session
+* @param event This contains what kind of event the callback triggers
+* @param origin Contains the sender of this event
+* @param params The parameters of the event, can be zero.
+* @param count The number of parameters.
+*/
 void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     options.connected = true;
     verbose_printf("irc joined channel\n");
 }
 
+/** 
+* This callback is called when there is activity on the channel.
+* We will print out the activity, including channel name and sender when the config struct asks for it.
+* 
+* @param session This will provide the irc session
+* @param event This contains what kind of event the callback triggers
+* @param origin Contains the sender of this event
+* @param params The parameters of the event, can be zero.
+* @param count The number of parameters.
+*/
 void irc_channel_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     if ( (options.mode & output) > 0)
@@ -83,6 +121,15 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
     }
 }
 
+/** 
+* reads a line from a file
+* 
+* @param fd file descriptor of the file to read
+* @param line pointer to the storage where the read line should reside
+* @param size the maximum size of the given storage
+* 
+* @return the number of characters read
+*/
 size_t sgets(int fd, char *line, size_t size)
 {
     size_t i;
@@ -101,6 +148,11 @@ size_t sgets(int fd, char *line, size_t size)
     return i;
 }
 
+/** 
+* Main application loop.
+* 
+* @return the succes or failure of closing the irc connection
+*/
 int prog_main()
 {
     char buff[300];
@@ -167,6 +219,25 @@ int prog_main()
     return close_irc_session();
 }
 
+/** 
+* This is the entry point of the application
+* We will process the commandline, configuration file here and the start the main loop.
+*
+* Processing the commandline argumants will be done in two steps. First we will do the simple
+* things like help and version. This will also include the configuration file should the user 
+* point us towards a non-default file.
+*
+* When the first part is done, the config file is read. Afterwards, the secondary commandline 
+* arguments are parsed which will override the config file. This ensures that both are read 
+* and that the commandline has priority.
+* 
+* When the main loop is done, we will close gracefully.
+*
+* @param argc The number of commandline arguments
+* @param argv the string array with commandline arguments.
+* 
+* @return returns succes or failure of the main application loop
+*/
 int main(int argc, char **argv)
 {
     struct sigaction setmask;
