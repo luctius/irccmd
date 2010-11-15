@@ -23,22 +23,22 @@
 struct config_options options =
 {
     .connected       = false,
-    .silent          = CONFIG_SILENT,
-    .debug           = CONFIG_DEBUG,
-    .verbose         = CONFIG_VERBOSE,
-    .configfile      = CONFIG_FILE,
+    .silent          = CONFIG_SILENT,          /**< If this member is set, the aplpication should only output irc output or errors. */ 
+    .debug           = CONFIG_DEBUG,           /**< If this is set, debug output will be send to stdout */ 
+    .verbose         = CONFIG_VERBOSE,         /**< if this is set, messages which would not be interresting to normal users can be shown */ 
+    .configfile      = CONFIG_FILE,            /**< This will define where to look for the config file */ 
 
 
-    .showchannel     = CONFIG_SHOWCHANNEL,
-    .shownick        = CONFIG_SHOWNICK,
+    .showchannel     = CONFIG_SHOWCHANNEL,     /**< This will enable showing of the channel in the irc output */ 
+    .shownick        = CONFIG_SHOWNICK,        /**< This will enable showing of the nickname in the irc output */ 
 
-    .mode            = CONFIG_MODE,
-    .port            = CONFIG_PORT,
-    .server          = CONFIG_SERVER,
-    .serverpassword  = CONFIG_SERVERPASSWORD,
-    .channel         = CONFIG_CHANNEL,
-    .channelpassword = CONFIG_CHANNELPASSWORD,
-    .botname         = CONFIG_BOTNAME,
+    .mode            = CONFIG_MODE,            /**< this will define the mode of the application */ 
+    .port            = CONFIG_PORT,            /**< this will hold the port which should be used to connect to the irc server */ 
+    .server          = CONFIG_SERVER,          /**< this will hold the server url or ip which should be used to connect to the irc server */ 
+    .serverpassword  = CONFIG_SERVERPASSWORD,  /**< this will hold the password neccesary to connect to the irc server; this can be empty */ 
+    .channel         = CONFIG_CHANNEL,         /**< this will hold the channel name, including '#' the bot would like to  join */ 
+    .channelpassword = CONFIG_CHANNELPASSWORD, /**< this will hold the password neccesary to join the channel; this can be empty */ 
+    .botname         = CONFIG_BOTNAME,         /**< this will hold the bot nick name and should be a unique identifier */ 
 };
      
 /** 
