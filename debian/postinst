@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# After http://www.debian.org/doc/debian-policy/ch-files.html#s-scripts
+set -e
+
+case "$1" in
+    install)
+		
+	;;
+	
+	upgrade)
+		
+    ;;
+
+	configure)
+	
+	;;
+	
+    abort-upgrade)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+#DEBHELPER#

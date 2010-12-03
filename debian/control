@@ -1,0 +1,13 @@
+Source: irccmd
+Maintainer: Cor Peters <corpeters@incas3.eu>
+Section: INCAS
+Standards-Version: 3.7
+
+Package: irccmd
+Priority: optional
+Architecture: amd64
+Section: INCAS
+Pre-Depends:    libircclient1 (>=1.0), 
+                libargtable2-0 (>= 1.0), 
+                liblua5.1-0 (>= 1.0)
+Description: Commandline bot for the INCAS3 IRC network
