@@ -29,7 +29,6 @@ static void arg_clean()
 {
     /* deallocate each non-null entry in argtable[] */
     arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
-    return 0;
 }
 
 int arg_parseprimairy(int argc, char **argv)
