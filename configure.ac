@@ -20,6 +20,7 @@ AC_CHECK_HEADERS([lua5.1/lua.h])
 AC_CHECK_HEADERS([lua5.1/lualib.h])
 AC_CHECK_HEADERS([lua5.1/luaxlib.h])
 AC_CHECK_HEADERS([argtable2.h])
+AC_CHECK_HEADERS([libircclient.h])
 AC_CHECK_HEADERS([libircclient/libircclient.h])
 
 AC_CONFIG_SRCDIR(src/main.c)

@@ -1,7 +1,15 @@
 #ifndef ircmod_h_
 #define ircmod_h_
 
-#include <libircclient/libircclient.h>
+#include "def.h"
+
+#ifdef HAVE_LIBIRCCLIENT_H
+    #include <libircclient.h>
+#elif HAVE_LIBIRCCLIENT_LIBIRCCLIENT_H
+    #include <libircclient/libircclient.h>
+#else
+    #error "ircclibclient.h not available"
+#endif
 
 int create_irc_session();
 int close_irc_session();
