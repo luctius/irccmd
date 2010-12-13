@@ -5,7 +5,7 @@ Standards-Version: 3.7
 
 Package: irccmd
 Priority: optional
-Architecture: amd64
+Architecture: amd64 i386 arm
 Section: INCAS
 Pre-Depends:    libircclient1 (>=1.0), 
                 libargtable2-0 (>= 1.0), 

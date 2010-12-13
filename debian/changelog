@@ -1,3 +1,9 @@
+irccmd (0.0.2) maverick; urgency=low
+
+  * Show release for Erik Kallen.
+
+ -- Cor Peters <corpeters@incas3.eu>  Fri, 3 Dec 2010 11:30:59 +0200
+
 irccmd (0.0.1) maverick; urgency=low
 
   * Initial release. 
