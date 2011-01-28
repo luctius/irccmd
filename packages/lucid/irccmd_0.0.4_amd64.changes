@@ -1,0 +1,22 @@
+Format: 1.8
+Date: Fri, 3 Dec 2010 11:30:59 +0200
+Source: irccmd
+Binary: irccmd
+Architecture: amd64
+Version: 0.0.4
+Distribution: maverick
+Urgency: low
+Maintainer: Cor Peters <corpeters@incas3.eu>
+Changed-By: Cor Peters <corpeters@incas3.eu>
+Description: 
+ irccmd     - Commandline bot for the INCAS3 IRC network
+Changes: 
+ irccmd (0.0.4) maverick; urgency=low
+ .
+   * Fixed cross compile problems in source package
+Checksums-Sha1: 
+ f0f9e4629d37354b2f0594346ba495d02cf227fe 10074 irccmd_0.0.4_amd64.deb
+Checksums-Sha256: 
+ e4c8623fd358c2313471c3ce737731fa51de4800913ae925078c0a14bcc5b8a8 10074 irccmd_0.0.4_amd64.deb
+Files: 
+ 463dd72a3cbd67cac41b5d480a88b8e4 10074 INCAS optional irccmd_0.0.4_amd64.deb

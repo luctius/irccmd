@@ -5,14 +5,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define verbose_printf(...) { if (options.verbose) printf("v- " __VA_ARGS__); }
-#define verbose_fprintf(...) { if (options.verbose) fprintf("v- " __VA_ARGS__); }
-#define debug_printf(...) { if (options.debug) printf("d- " __VA_ARGS__); }
-#define debug_fprintf(...) { if (options.debug) fprintf("d- " __VA_ARGS__); }
-#define nsilent_printf(...) { if (options.silent == false) printf(__VA_ARGS__); }
-#define nsilent_fprintf(...) { if (options.silent == false) fprintf(__VA_ARGS__); }
-#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); }
-#define warning(...) { if (options.silent == false) fprintf(stderr, "WARNING: " __VA_ARGS__); }
+#define verbose_printf(...) { if (options.verbose) { printf("v- " __VA_ARGS__); fflush(stdout); } }
+#define verbose_fprintf(...) { if (options.verbose) { fprintf("v- " __VA_ARGS__); fflush(stdout); } }
+#define debug_printf(...) { if (options.debug) { printf("d- " __VA_ARGS__); fflush(stdout); } }
+#define debug_fprintf(...) { if (options.debug) { fprintf("d- " __VA_ARGS__); fflush(stdout); } }
+#define nsilent_printf(...) { if (options.silent == false) { printf(__VA_ARGS__); fflush(stdout); } }
+#define nsilent_fprintf(...) { if (options.silent == false) { fprintf(__VA_ARGS__); fflush(stdout); } }
+#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); fflush(stderr); }
+#define warning(...) { if (options.silent == false) { fprintf(stderr, "WARNING: " __VA_ARGS__); fflush(stderr); } }
 
 
 /** 

@@ -1,0 +1,9 @@
+Package: irccmd
+Version: 0.0.4
+Architecture: amd64
+Maintainer: Cor Peters <corpeters@incas3.eu>
+Installed-Size: 68
+Pre-Depends: libircclient1, libargtable2-0, liblua5.1-0
+Section: INCAS
+Priority: optional
+Description: Commandline bot for the INCAS3 IRC network

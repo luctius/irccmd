@@ -1,4 +1,9 @@
 #!/usr/bin/make -f
 
+CFLAGS += ${CFLAGS_APPEND}
+CPPFLAGS += ${CPPFLAGS_APPEND}
+LDFLAGS += ${LDFLAGS_APPEND}
+CXXFLAGS += ${CXXFLAGS_APPEND}
+
 %:
 	dh $@

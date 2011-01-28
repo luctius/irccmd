@@ -216,6 +216,9 @@ int prog_main()
             }
         }
         usleep(100);
+
+        /*counter++;
+        if (counter > 1000) options.running = false;*/
     }
 
     return close_irc_session();
