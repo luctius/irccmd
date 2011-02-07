@@ -22,23 +22,24 @@
 */
 struct config_options options =
 {
-    .connected       = false,
-    .silent          = CONFIG_SILENT,          /**< If this member is set, the aplpication should only output irc output or errors. */ 
-    .debug           = CONFIG_DEBUG,           /**< If this is set, debug output will be send to stdout */ 
-    .verbose         = CONFIG_VERBOSE,         /**< if this is set, messages which would not be interresting to normal users can be shown */ 
-    .configfile      = CONFIG_FILE,            /**< This will define where to look for the config file */ 
+    .connected        = false,
+    .silent           = CONFIG_SILENT,            /**< If this member is set, the aplpication should only output irc output or errors. */ 
+    .debug            = CONFIG_DEBUG,             /**< If this is set, debug output will be send to stdout */ 
+    .verbose          = CONFIG_VERBOSE,           /**< if this is set, messages which would not be interresting to normal users can be shown */ 
+    .configfile       = CONFIG_FILE,              /**< This will define where to look for the config file */ 
 
 
-    .showchannel     = CONFIG_SHOWCHANNEL,     /**< This will enable showing of the channel in the irc output */ 
-    .shownick        = CONFIG_SHOWNICK,        /**< This will enable showing of the nickname in the irc output */ 
+    .showchannel      = CONFIG_SHOWCHANNEL,       /**< This will enable showing of the channel in the irc output */ 
+    .shownick         = CONFIG_SHOWNICK,          /**< This will enable showing of the nickname in the irc output */ 
 
-    .mode            = CONFIG_MODE,            /**< this will define the mode of the application */ 
-    .port            = CONFIG_PORT,            /**< this will hold the port which should be used to connect to the irc server */ 
-    .server          = CONFIG_SERVER,          /**< this will hold the server url or ip which should be used to connect to the irc server */ 
-    .serverpassword  = CONFIG_SERVERPASSWORD,  /**< this will hold the password neccesary to connect to the irc server; this can be empty */ 
-    .channel         = CONFIG_CHANNEL,         /**< this will hold the channel name, including '#' the bot would like to  join */ 
-    .channelpassword = CONFIG_CHANNELPASSWORD, /**< this will hold the password neccesary to join the channel; this can be empty */ 
-    .botname         = CONFIG_BOTNAME,         /**< this will hold the bot nick name and should be a unique identifier */ 
+    .mode             = CONFIG_MODE,              /**< this will define the mode of the application */ 
+    .port             = CONFIG_PORT,              /**< this will hold the port which should be used to connect to the irc server */ 
+    .server           = CONFIG_SERVER,            /**< this will hold the server url or ip which should be used to connect to the irc server */ 
+    .serverpassword   = CONFIG_SERVERPASSWORD,    /**< this will hold the password neccesary to connect to the irc server; this can be empty */ 
+    .channels         = {CONFIG_CHANNEL},         /**< this will hold the channel name, including '#' the bot would like to  join */ 
+    .channelpasswords = {CONFIG_CHANNELPASSWORD}, /**< this will hold the password neccesary to join the channel; this can be empty */ 
+    .no_channels      = 1,                        /**< this will hold the number of channels the bot would like to join */
+    .botname          = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */ 
 };
      
 /** 
@@ -64,12 +65,16 @@ void sigfunc()
 void irc_server_connect(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     int retval = 0;
+    int counter = 0;
 
     irc_send_raw_msg("login bot bone", "userserv");
 
-	verbose_printf("joining channel: %s\n", options.channel);
-	retval = irc_cmd_join(session, options.channel, options.channelpassword);
-	if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+    for (counter = 0; counter < options.no_channels; counter++)
+    {
+	    verbose_printf("joining channel: %s\n", options.channels[counter]);
+    	retval = irc_cmd_join(session, options.channels[counter], options.channelpasswords[counter]);
+        if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+    }
 }
 
 /** 
@@ -85,7 +90,7 @@ void irc_server_connect(irc_session_t *session, const char *event, const char *o
 void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     options.connected = true;
-    verbose_printf("irc joined channel\n");
+    verbose_printf("irc joined %s\n", params[0]);
 }
 
 /** 
@@ -121,6 +126,7 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
             else printf("%s\n", params[1]);
         }
     }
+    fflush(stdout);
 }
 
 /** 
@@ -150,6 +156,56 @@ size_t sgets(int fd, char *line, size_t size)
     return i;
 }
 
+bool send_irc_message(char *msg)
+{
+    bool retval = false;
+    int channel_id = 0;
+    char channel[MAX_CHANNELS_NAMELEN];
+    char *msg_start = msg;
+    char *channel_start = msg;
+
+    debug_printf("send_irc-message\n");
+    if (msg != NULL)
+    {
+        //check if the first non-white-space character is a '#'
+        channel_start = strchr(msg, '#');
+        if (channel_start != NULL)
+        {
+            msg_start = strchr(channel_start, ' ');
+            *msg_start = '\0';
+            msg_start++;
+        }
+
+        debug_printf("channel: %s\n", channel_start);
+        debug_printf("msg: %s\n", msg_start);
+
+        //if so, find the channel in the known channels
+        if (channel_start != NULL && msg_start != NULL)
+        {
+            int len = msg_start - channel_start;
+
+            while (strncmp(options.channels[channel_id], channel_start, len) != 0)
+            {
+                channel_id++;
+                if (channel_id >= options.no_channels)
+                {
+                    verbose_printf("channel %s not found, defaulting to %s\n", channel_start, options.channels[0]);
+                    channel_id = 0;
+                    break;
+                }
+            }
+        }
+
+        //send the message to the correct channel
+        memset(channel, 0, sizeof(channel));
+        strncpy(channel, options.channels[channel_id], sizeof(channel) );
+        irc_send_raw_msg(msg_start, channel);
+        if (options.verbose) printf(".");
+        retval = true;
+    }
+    return retval;
+}
+
 /** 
 * Main application loop.
 * 
@@ -167,9 +223,9 @@ int prog_main()
 
     callbacks->event_connect = irc_server_connect;
     callbacks->event_channel = irc_channel_callback;
-    callbacks->event_mode    = irc_mode_callback;
+	callbacks->event_join    = irc_mode_callback;
 
-    tv.tv_sec = 10;
+    tv.tv_sec = 2;
     tv.tv_usec = 0;
 
     verbose_printf("starting main loop\n");
@@ -186,32 +242,59 @@ int prog_main()
     {
         int result = 0;
 
+        tv.tv_sec = 10;
+        tv.tv_usec = 0;
+
         FD_ZERO(&readset);
         FD_ZERO(&writeset);
-        if ( ( (options.mode & input) > 0) && (options.connected) ) FD_SET(stdin_fd, &readset);
+
+        if ( (options.mode & input) > 0)
+        {
+            if (options.connected)
+            {
+                debug_printf("setting stdin in select readset\n");
+                FD_SET(stdin_fd, &readset);
+            }
+            else debug_printf("not setting stdin; waiting for channel join\n");
+        }
 
         add_irc_descriptors(&readset, &writeset, &maxfd);
         result = select(maxfd +1, &readset, &writeset, NULL, &tv);
 
+        debug_printf("post select\n");
+
         if (result == 0)
         {
+            debug_printf("select result 0\n");
         } 
         else if (result < 0)
         {
-            error("we've got an error on select\n");
+            if (options.running) error("error on select\n");
         }
         else 
         {
             process_irc(&readset, &writeset);
             if (FD_ISSET(stdin_fd, &readset) )
             {
+                debug_printf("stdin is set\n");
+                memset(buff, 0, sizeof(buff) );
                 result = sgets(stdin_fd, buff, sizeof(buff) );
 
-                if (result == 0) options.running = false;
+                if (result == 0)
+                {
+//                    options.running = false;
+//                    error("error in fetching message from stdin\n");
+                }
                 else if (result > 0)
                 {
-                    if (options.verbose) printf(".");
-                    irc_send_raw_msg(buff, options.channel);
+                    debug_printf("received message %s\n", buff);
+                    if (options.running)
+                    {
+                        if( (options.running = send_irc_message(buff) ) == false)
+                        {
+                            error("failed to parse message\n");
+                        }
+                    }
                 }
             }
         }

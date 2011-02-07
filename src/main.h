@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define MAX_CHANNELS (20)
+#define MAX_CHANNELS_NAMELEN (20)
+
 #define verbose_printf(...) { if (options.verbose) { printf("v- " __VA_ARGS__); fflush(stdout); } }
 #define verbose_fprintf(...) { if (options.verbose) { fprintf("v- " __VA_ARGS__); fflush(stdout); } }
 #define debug_printf(...) { if (options.debug) { printf("d- " __VA_ARGS__); fflush(stdout); } }
@@ -45,11 +48,12 @@ struct config_options
     bool shownick;
 
     int port;
-    const char *server;
-    const char *channel;
-    const char *serverpassword;
-    const char *channelpassword;
+    int no_channels;
     const char *botname;
+    const char *server;
+    const char *serverpassword;
+    const char *channels[MAX_CHANNELS];
+    const char *channelpasswords[MAX_CHANNELS];
 };
 
 extern struct config_options options;

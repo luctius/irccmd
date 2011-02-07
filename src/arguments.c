@@ -10,7 +10,6 @@ struct arg_str  *server;
 struct arg_str  *channel;
 struct arg_str  *botname;
 struct arg_str  *serverpassword;
-struct arg_str  *channelpassword;
 struct arg_lit  *showchannel;
 struct arg_lit  *shownick;
 
@@ -44,10 +43,12 @@ int arg_parseprimairy(int argc, char **argv)
     port            = arg_int0("p"  , "port"            , "port" XSTR(CONFIG_PORT)    , "set the port of the irc server");
     mode            = arg_str0("m"  , "mode"            , "in/out/both"               , "set the mode, input, output or both");
     server          = arg_str0(NULL , "server"          , CONFIG_SERVER               , "set the irc server");
-    channel         = arg_str0(NULL , "channel"         , CONFIG_CHANNEL              , "set the irc channel");
+    channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL              , 0, MAX_CHANNELS, 
+                                                                                        "set an irc channel, can be applied multiple "
+                                                                                        "times, each for a new channel. An optional "
+                                                                                        "password can be supplied using a column (:) as seperator.");
     botname         = arg_str0(NULL , "name"            , CONFIG_BOTNAME              , "set the botname");
     serverpassword  = arg_str0(NULL , "serverpassword"  , "password"                  , "set the password for the server");
-    channelpassword = arg_str0(NULL , "channelpassword" , "password"                  , "set the password for the channel");
     end             = arg_end(20);
 
     const char* progname = PROG_STRING;
@@ -64,14 +65,13 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = config;
 
         argtable[i++] = mode;
-        argtable[i++] = port;
-        argtable[i++] = server;
-        argtable[i++] = channel;
-        argtable[i++] = botname;
-        argtable[i++] = serverpassword;
-        argtable[i++] = channelpassword;
         argtable[i++] = showchannel;
         argtable[i++] = shownick;
+        argtable[i++] = port;
+        argtable[i++] = server;
+        argtable[i++] = botname;
+        argtable[i++] = serverpassword;
+        argtable[i++] = channel;
 
         argtable[i++] = end;
     }
@@ -220,15 +220,6 @@ int arg_parsesecondary()
 		}
 	}
 	
-	if (channel->count > 0)
-	{
-        if (options.running)
-        {
-			options.channel = channel->sval[0];
-			verbose_printf("setting channel to #%s\n", channel->sval[0]);
-		}
-	}
-	
 	if (botname->count > 0)
 	{
         if (options.running)
@@ -247,15 +238,29 @@ int arg_parsesecondary()
 		}
 	}
 
-    if (channelpassword->count > 0)
+	if (channel->count > 0)
 	{
         if (options.running)
         {
-			options.channelpassword = channelpassword->sval[0];
-			verbose_printf("using different channel password\n");
+            int counter = 0;
+            options.no_channels = channel->count;
+            for (counter = 0; counter < options.no_channels; counter++)
+            {
+                char *passwd_start = NULL;
+                options.channels[counter] = channel->sval[counter];
+                passwd_start = strchr(options.channels[counter], ':');
+
+                if (passwd_start != NULL)
+                {
+                    *passwd_start = '\0';
+                    options.channelpasswords[counter] = passwd_start++;
+                    verbose_printf("using different password for channel %s\n", options.channels[counter]);
+                }
+                verbose_printf("setting channel to %s\n", channel->sval[counter]);
+            }
 		}
 	}
-
+	
     if (showchannel->count > 0)
     {
         if (options.running)

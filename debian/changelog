@@ -1,4 +1,10 @@
-irccmd (0.0.4) maverick; urgency=low
+irccmd (0.0.5) lucid; urgency=low
+
+  * Added i386 to repos
+
+ -- Cor Peters <corpeters@incas3.eu>  Fri, 3 Dec 2010 11:30:59 +0200
+
+irccmd (0.0.4) lucid; urgency=low
 
   * Fixed cross compile problems in source package
 

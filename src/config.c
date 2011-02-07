@@ -227,10 +227,10 @@ int read_config_file()
         options.showchannel     = lua_boolexpr(L   , "settings.showchannel"     , CONFIG_SHOWCHANNEL);
         options.shownick        = lua_boolexpr(L   , "settings.shownick"        , CONFIG_SHOWNICK);
         options.server          = lua_stringexpr(L , "settings.server"          , CONFIG_SERVER);
-        options.channel         = lua_stringexpr(L , "settings.channel"         , CONFIG_CHANNEL);
         options.botname         = lua_stringexpr(L , "settings.name"            , CONFIG_BOTNAME);
         options.serverpassword  = lua_stringexpr(L , "settings.serverpassword"  , CONFIG_SERVERPASSWORD);
-        options.channelpassword = lua_stringexpr(L , "settings.channelpassword" , CONFIG_CHANNELPASSWORD);
+        //options.channel         = lua_stringexpr(L , "settings.channel"         , CONFIG_CHANNEL);
+        //options.channelpassword = lua_stringexpr(L , "settings.channelpassword" , CONFIG_CHANNELPASSWORD);
         lua_intexpr(L                              , "settings.port"            , &options.port);
 
         lua_close(L);
