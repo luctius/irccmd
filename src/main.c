@@ -40,6 +40,7 @@ struct config_options options =
     .channelpasswords = {CONFIG_CHANNELPASSWORD}, /**< this will hold the password neccesary to join the channel; this can be empty */ 
     .no_channels      = 1,                        /**< this will hold the number of channels the bot would like to join */
     .botname          = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */ 
+    .botname_nr       = 1,
 };
      
 /** 

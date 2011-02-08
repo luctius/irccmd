@@ -24,7 +24,25 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
     if (event == 433)
     {
         error("Nick allready in use\n");
-        options.running = false;
+
+        if (options.botname_nr == 0)
+        {
+            if (strlen(options.botname) <= (MAX_BOT_NAMELEN -2) )
+            {
+                sprintf(options.botname, "%s_", options.botname);
+            }
+            else if (strlen(options.botname) >= (MAX_BOT_NAMELEN) )
+            {
+                options.running = false;
+            }
+        }
+
+        if (options.botname_nr < 0xF)
+        {
+            sprintf(options.botname, "%s%X", options.botname, options.botname_nr++);
+            create_irc_session();
+        }
+        else options.running = false;
     }
 }
 

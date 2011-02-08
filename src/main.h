@@ -7,6 +7,7 @@
 
 #define MAX_CHANNELS (20)
 #define MAX_CHANNELS_NAMELEN (20)
+#define MAX_BOT_NAMELEN (8)
 
 #define verbose_printf(...) { if (options.verbose) { printf("v- " __VA_ARGS__); fflush(stdout); } }
 #define verbose_fprintf(...) { if (options.verbose) { fprintf("v- " __VA_ARGS__); fflush(stdout); } }
@@ -49,11 +50,13 @@ struct config_options
 
     int port;
     int no_channels;
-    const char *botname;
+    char botname[MAX_BOT_NAMELEN];
     const char *server;
     const char *serverpassword;
     const char *channels[MAX_CHANNELS];
     const char *channelpasswords[MAX_CHANNELS];
+
+    int botname_nr;
 };
 
 extern struct config_options options;
