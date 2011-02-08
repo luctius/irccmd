@@ -19,7 +19,7 @@
 #define CONFIG_MODE     both
 #define CONFIG_PORT     6667
 #define CONFIG_SERVER   "irc.incas3.nl"
-#define CONFIG_BOTNAME  "omega "
+#define CONFIG_BOTNAME  "omega"
 #define CONFIG_CHANNEL  "#spam"
 #define CONFIG_SERVERPASSWORD ""
 #define CONFIG_CHANNELPASSWORD ""

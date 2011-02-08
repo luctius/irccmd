@@ -173,35 +173,43 @@ bool send_irc_message(char *msg)
         if (channel_start != NULL)
         {
             msg_start = strchr(channel_start, ' ');
-            *msg_start = '\0';
-            msg_start++;
-        }
 
-        debug_printf("channel: %s\n", channel_start);
-        debug_printf("msg: %s\n", msg_start);
-
-        //if so, find the channel in the known channels
-        if (channel_start != NULL && msg_start != NULL)
-        {
-            int len = msg_start - channel_start;
-
-            while (strncmp(options.channels[channel_id], channel_start, len) != 0)
+            if (msg_start != NULL)
             {
-                channel_id++;
-                if (channel_id >= options.no_channels)
-                {
-                    verbose_printf("channel %s not found, defaulting to %s\n", channel_start, options.channels[0]);
-                    channel_id = 0;
-                    break;
-                }
+                *msg_start = '\0';
+                msg_start++;
             }
         }
 
-        //send the message to the correct channel
-        memset(channel, 0, sizeof(channel));
-        strncpy(channel, options.channels[channel_id], sizeof(channel) );
-        irc_send_raw_msg(msg_start, channel);
-        if (options.verbose) printf(".");
+        if (msg_start != NULL)
+        {
+            debug_printf("msg: %s\n", msg_start);
+
+            //if so, find the channel in the known channels
+            if (channel_start != NULL)
+            {
+                int len = msg_start - channel_start;
+
+                debug_printf("channel: %s\n", channel_start);
+                while (strncmp(options.channels[channel_id], channel_start, len) != 0)
+                {
+                    channel_id++;
+                    if (channel_id >= options.no_channels)
+                    {
+                        verbose_printf("channel %s not found, defaulting to %s\n", channel_start, options.channels[0]);
+                        channel_id = 0;
+                        break;
+                    }
+                }
+            }
+
+            //send the message to the correct channel
+            memset(channel, 0, sizeof(channel));
+            strncpy(channel, options.channels[channel_id], sizeof(channel) );
+            debug_printf("sending: %s to channel %s\n", msg_start, channel);
+            irc_send_raw_msg(msg_start, channel);
+            verbose_printf(".");
+        }
         retval = true;
     }
     return retval;

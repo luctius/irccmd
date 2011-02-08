@@ -40,6 +40,8 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
         if (options.botname_nr < 0xF)
         {
             sprintf(options.botname, "%s%X", options.botname, options.botname_nr++);
+
+            debug_printf("retrying with nick: %s\n", options.botname);
             create_irc_session();
         }
         else options.running = false;
