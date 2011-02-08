@@ -15,7 +15,7 @@ CFLAGS="$CFLAGS -Wall"
 AC_TRY_COMPILE([],[], AC_MSG_RESULT(yes), AC_MSG_RESULT(no), CFLAGS="$old_CFLAGS")
 
 PKG_CHECK_MODULES([lua], [lua], [], 
-                  [PKG_CHECK_MODULES([lua], [lua5.1], [], [])])
+                  [PKG_CHECK_MODULES([lua], [lua5.1] )])
 AC_SEARCH_LIBS( [arg_parse], [argtable argtable2] )
 AC_SEARCH_LIBS( [irc_create_session], [ircclient ircclient0] )
 
