@@ -213,6 +213,7 @@ bool send_irc_message(char *msg)
 */
 int prog_main()
 {
+    int counter = 0;
     char buff[300];
     int stdin_fd = STDIN_FILENO;
     int maxfd = stdin_fd;
@@ -237,7 +238,6 @@ int prog_main()
 
     verbose_printf("starting loop\n");
 
-    int counter = 0;
     while (options.running)
     {
         int result = 0;
