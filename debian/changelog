@@ -1,3 +1,11 @@
+irccmd (0.0.6) lucid; urgency=low
+
+  * Usedcommit 986435e48de6baf21c2de74c26442d54028df4a9 as base
+  * Added configfile
+  * Added support for multiple channels
+
+ -- Cor Peters <corpeters@incas3.eu>  Wed, 9 Feb 2011 10:30:59 +0200
+
 irccmd (0.0.5) lucid; urgency=low
 
   * Added i386 to repos
