@@ -145,17 +145,16 @@ static lua_State *conf_open(const char *file)
     lua_State *L = luaL_newstate();
     if (L == NULL)
     {
-        debug_printf("Bailing out! No memory.");
+        error("Bailing out! No memory.");
         return L;
     }
 
     luaL_openlibs(L);
-
     if ( (err = luaL_loadfile(L, file) ) != 0) 
     {
         if (err == LUA_ERRFILE)
         {
-            //warning("cannot access config file: %s\n", file);
+            verbose("cannot access config file: %s\n", file);
         }
         else if (err == LUA_ERRSYNTAX)
         {
@@ -200,6 +199,7 @@ static lua_State *conf_open(const char *file)
             lua_close(L);
             L = NULL;
         }
+        else debug("loaded config file in memory; parsing now...\n");
     }
 
     return L;
@@ -211,32 +211,57 @@ static lua_State *conf_open(const char *file)
 * 
 * @return returns 0 on succes or 1 on failure.
 */
-int read_config_file()
+int read_config_file(const char *path)
 {
-    lua_State *L = conf_open(options.configfile);
+    lua_State *L = conf_open(path);
     int errorcode = 0;
     
-    if (L == NULL) L = conf_open("/etc/irccmd.conf");
-
     if (L != NULL)
     {
-        options.silent          = lua_boolexpr(L   , "settings.silent"          , CONFIG_SILENT);
-        options.verbose         = lua_boolexpr(L   , "settings.verbose"         , CONFIG_VERBOSE);
-        options.debug           = lua_boolexpr(L   , "settings.debug"           , CONFIG_DEBUG);
+        verbose("found the config file %s\n", path);
 
-        options.showchannel     = lua_boolexpr(L   , "settings.showchannel"     , CONFIG_SHOWCHANNEL);
-        options.shownick        = lua_boolexpr(L   , "settings.shownick"        , CONFIG_SHOWNICK);
-        options.server          = lua_stringexpr(L , "settings.server"          , CONFIG_SERVER);
-        options.serverpassword  = lua_stringexpr(L , "settings.serverpassword"  , CONFIG_SERVERPASSWORD);
-        //options.channel         = lua_stringexpr(L , "settings.channel"         , CONFIG_CHANNEL);
-        //options.channelpassword = lua_stringexpr(L , "settings.channelpassword" , CONFIG_CHANNELPASSWORD);
+        if (!options.silent)  options.silent    = lua_boolexpr(L , "settings.silent"         , options.silent);
+        if (!options.verbose) options.verbose   = lua_boolexpr(L , "settings.verbose"        , options.verbose);
+        if (!options.debug)   options.debug     = lua_boolexpr(L , "settings.debug"          , options.debug);
 
-        lua_intexpr(L                              , "settings.port"            , &options.port);
-        strncpy(options.botname, lua_stringexpr(L, "settings.name", CONFIG_BOTNAME), MAX_BOT_NAMELEN);
+        options.showchannel                 = lua_boolexpr(L     , "settings.showchannel"    , options.showchannel);
+        options.shownick                    = lua_boolexpr(L     , "settings.shownick"       , options.shownick);
+        lua_intexpr(L                                            , "settings.port"           , &options.port);
+        strncpy(options.server              , lua_stringexpr(L   , "settings.server"         , options.server)         , MAX_SERVER_NAMELEN);
+        strncpy(options.botname             , lua_stringexpr(L   , "settings.name"           , options.botname)        , MAX_BOT_NAMELEN);
+        strncpy(options.serverpassword      , lua_stringexpr(L   , "settings.serverpassword" , options.serverpassword) , MAX_PASSWD_LEN);
 
+        int counter = 0;
+        char *basestr = "settings.channels[%d].%s";
+        char *namestr = "name";
+        char *passwdstr = "password";
+        for (counter = 0; counter < MAX_CHANNELS; counter++)
+        {
+            char name_buff[strlen(basestr) + strlen(namestr) +2];
+            char passwd_buff[strlen(basestr) + strlen(passwdstr) +2];
+
+            snprintf(name_buff, sizeof(name_buff) -1, basestr, counter +1, namestr);
+            snprintf(passwd_buff, sizeof(passwd_buff) -1, basestr, counter +1, passwdstr);
+
+            strncpy(options.channels[counter],         lua_stringexpr(L, name_buff,   options.channels[counter]),         MAX_CHANNELS_NAMELEN);
+            strncpy(options.channelpasswords[counter], lua_stringexpr(L, passwd_buff, options.channelpasswords[counter]), MAX_PASSWD_LEN);
+
+            if (strlen(options.channels[counter]) == 0) counter = MAX_CHANNELS;
+            else
+            {
+                options.no_channels = counter +1;
+                debug("fetching %s: %s\n", name_buff, options.channels[counter]);
+                debug("fetching %s: %s\n", passwd_buff, options.channelpasswords[counter]);
+            }
+        }
+
+        debug("number of channels to join: %d\n", options.no_channels);
         lua_close(L);
     }
-    else errorcode = 1;
+    else
+    {
+        errorcode = 1;
+    }
 
     return  errorcode;
 }

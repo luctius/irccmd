@@ -18,6 +18,6 @@
 * 
 * @return 0 on success or 1 on failure.
 */
-int read_config_file();
+int read_config_file(const char *path);
 
 #endif /* config_h_ */

@@ -11,15 +11,15 @@ bool init_callbacks = false;
 
 void irc_general_event(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count)
 {
-    if (count == 0) debug_printf("irc general event: %s: %s\n", event, origin);
-    if (count == 1) debug_printf("irc general event: %s: %s: %s\n", event, origin, params[0]);
-    if (count == 2) debug_printf("irc general event: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
-    if (count >= 3) debug_printf("irc general event: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
+    if (count == 0) debug("irc general event: %s: %s\n", event, origin);
+    if (count == 1) debug("irc general event: %s: %s: %s\n", event, origin, params[0]);
+    if (count == 2) debug("irc general event: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
+    if (count >= 3) debug("irc general event: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
 }
 
 void irc_general_event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count)
 {
-	debug_printf("irc numeric event: %d: %s\n", event, origin);
+	debug("irc numeric event: %d: %s\n", event, origin);
 
     if (event == 433)
     {
@@ -41,7 +41,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
         {
             sprintf(options.botname, "%s%X", options.botname, options.botname_nr++);
 
-            debug_printf("retrying with nick: %s\n", options.botname);
+            verbose("retrying with nick: %s\n", options.botname);
             create_irc_session();
         }
         else options.running = false;
@@ -81,14 +81,14 @@ int create_irc_session()
 {
 	int retval = 0;
 
-	verbose_printf("setting up irc connection\n");
+	debug("setting up irc connection\n");
 	session = irc_create_session(&callbacks);
 
-	verbose_printf("connecting to server: %s:%d\n", options.server, options.port);
+	verbose("connecting to server: %s:%d\n", options.server, options.port);
 	retval = irc_connect(session, options.server, options.port, options.serverpassword, options.botname, PROG_STRING, PROG_STRING);
 	if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
 
-	verbose_printf("irc session is ready\n");
+	debug("irc session is ready\n");
 	return irc_is_connected(session);
 }
 
@@ -117,7 +117,7 @@ int process_irc(fd_set *in_set, fd_set *out_set)
 
 int close_irc_session()
 {
-	verbose_printf("close irc connection\n");
+	verbose("close irc connection\n");
 	irc_disconnect(session);
 	irc_destroy_session(session);
 	return 0;

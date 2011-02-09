@@ -49,7 +49,7 @@ struct config_options options =
 */
 void sigfunc()
 {
-    debug_printf("Received signal\n");
+    debug("Received signal\n");
     options.running = false;
 }
 
@@ -69,10 +69,11 @@ void irc_server_connect(irc_session_t *session, const char *event, const char *o
     int counter = 0;
 
     irc_send_raw_msg("login bot bone", "userserv");
+    verbose("connected to server\n");
 
     for (counter = 0; counter < options.no_channels; counter++)
     {
-	    verbose_printf("joining channel: %s\n", options.channels[counter]);
+	    verbose("joining channel: %s\n", options.channels[counter]);
     	retval = irc_cmd_join(session, options.channels[counter], options.channelpasswords[counter]);
         if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
     }
@@ -91,7 +92,7 @@ void irc_server_connect(irc_session_t *session, const char *event, const char *o
 void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     options.connected = true;
-    verbose_printf("irc joined %s\n", params[0]);
+    verbose("joined channel %s\n", params[0]);
 }
 
 /** 
@@ -114,17 +115,17 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
             if (options.showchannel && options.shownick)
             {
-                printf("%s - %s: %s\n", params[0], nick, params[1]);
+                nsilent("%s - %s: %s\n", params[0], nick, params[1]);
             }
             else if (options.showchannel)
             {
-                printf("%s - %s\n", params[0], params[1]);
+                nsilent("%s - %s\n", params[0], params[1]);
             }
             else if (options.shownick)
             {
-                printf("%s: %s\n", nick, params[1]);
+                nsilent("%s: %s\n", nick, params[1]);
             }
-            else printf("%s\n", params[1]);
+            else nsilent("%s\n", params[1]);
         }
     }
     fflush(stdout);
@@ -165,7 +166,7 @@ bool send_irc_message(char *msg)
     char *msg_start = msg;
     char *channel_start = msg;
 
-    debug_printf("send_irc-message\n");
+    debug("send_irc-message\n");
     if (msg != NULL)
     {
         //check if the first non-white-space character is a '#'
@@ -183,20 +184,20 @@ bool send_irc_message(char *msg)
 
         if (msg_start != NULL)
         {
-            debug_printf("msg: %s\n", msg_start);
+            debug("msg: %s\n", msg_start);
 
             //if so, find the channel in the known channels
             if (channel_start != NULL)
             {
                 int len = msg_start - channel_start;
 
-                debug_printf("channel: %s\n", channel_start);
+                debug("channel: %s\n", channel_start);
                 while (strncmp(options.channels[channel_id], channel_start, len) != 0)
                 {
                     channel_id++;
                     if (channel_id >= options.no_channels)
                     {
-                        verbose_printf("channel %s not found, defaulting to %s\n", channel_start, options.channels[0]);
+                        verbose("channel %s not found, defaulting to %s\n", channel_start, options.channels[0]);
                         channel_id = 0;
                         break;
                     }
@@ -206,9 +207,9 @@ bool send_irc_message(char *msg)
             //send the message to the correct channel
             memset(channel, 0, sizeof(channel));
             strncpy(channel, options.channels[channel_id], sizeof(channel) );
-            debug_printf("sending: %s to channel %s\n", msg_start, channel);
+            debug("sending: %s to channel %s\n", msg_start, channel);
             irc_send_raw_msg(msg_start, channel);
-            verbose_printf(".");
+            verbose(".");
         }
         retval = true;
     }
@@ -238,14 +239,15 @@ int prog_main()
     tv.tv_sec = 2;
     tv.tv_usec = 0;
 
-    verbose_printf("starting main loop\n");
+    debug("starting main loop\n");
 
     if (create_irc_session() != 1)
     {
-        debug_printf("irc connection setup has failed\n");
+        error("irc connection setup has failed\n");
+        options.running = false;
     }
 
-    verbose_printf("starting loop\n");
+    debug("starting loop\n");
 
     while (options.running)
     {
@@ -261,20 +263,20 @@ int prog_main()
         {
             if (options.connected)
             {
-                debug_printf("setting stdin in select readset\n");
+                debug("setting stdin in select readset\n");
                 FD_SET(stdin_fd, &readset);
             }
-            else debug_printf("not setting stdin; waiting for channel join\n");
+            else debug("not setting stdin; waiting for channel join\n");
         }
 
         add_irc_descriptors(&readset, &writeset, &maxfd);
         result = select(maxfd +1, &readset, &writeset, NULL, &tv);
 
-        debug_printf("post select\n");
+        debug("post select\n");
 
         if (result == 0)
         {
-            debug_printf("select result 0\n");
+            debug("select result 0\n");
         } 
         else if (result < 0)
         {
@@ -285,7 +287,7 @@ int prog_main()
             process_irc(&readset, &writeset);
             if (FD_ISSET(stdin_fd, &readset) )
             {
-                debug_printf("stdin is set\n");
+                debug("stdin is set\n");
                 memset(buff, 0, sizeof(buff) );
                 result = sgets(stdin_fd, buff, sizeof(buff) );
 
@@ -296,7 +298,7 @@ int prog_main()
                 }
                 else if (result > 0)
                 {
-                    debug_printf("received message %s\n", buff);
+                    debug("received message %s\n", buff);
                     if (options.running)
                     {
                         if( (options.running = send_irc_message(buff) ) == false)
@@ -356,16 +358,39 @@ int main(int argc, char **argv)
     {
         if ( (exitcode = arg_parseprimairy(argc, argv) ) != 0)
         {
-            debug_printf("parsing secondaries failed\n");
+            debug("parsing primairies failed\n");
         }
     }
 
     /*parse (updated) config file*/
     if (options.running)
     {
-        if ( (exitcode = read_config_file(&options) ) != 0)
+        if ( (exitcode = read_config_file("/etc/irccmd.cnf") ) != 0)
         {
-            //verbose_printf("config file: %s is not parsed succesfully\n", options.configfile);
+        }
+        if ( (exitcode = read_config_file(options.configfile) ) != 0)
+        {
+        }
+    }
+
+    {
+        if (options.silent)
+        {
+            options.silent  = true;
+            options.verbose = false;
+            options.debug   = false;
+        }
+        else if (options.debug)
+        {
+            options.silent  = false;
+            options.verbose = true;
+            options.debug   = true;
+        }
+        else if (options.verbose)
+        {
+            options.verbose = true;
+            options.silent  = false;
+            options.debug   = false;
         }
     }
 
@@ -377,15 +402,14 @@ int main(int argc, char **argv)
         {
             exitcode = 1;
             options.running = false;
-            debug_printf("parsing secondaries failed\n");
+            debug("parsing secondaries failed\n");
         }
     }
 /*---------------- Configuration code end--------------*/
     {
-        const char *temp[] = {"none", "input", "output", "both"};
-
         /*give warnings about experimental options*/
-        verbose_printf("mode is set to '%s'\n", temp[options.mode]);
+        const char *temp[] = {"none", "input", "output", "both"};
+        verbose("mode is set to '%s'\n", temp[options.mode]);
     }
 
     /*let's fire it up*/
@@ -396,7 +420,7 @@ int main(int argc, char **argv)
     }
 
     /*exitting gracefully*/
-    debug_printf("exiting with: %d\n", exitcode);
+    verbose("exiting with: %d\n", exitcode);
     return exitcode;
 }
 

@@ -34,8 +34,8 @@ int arg_parseprimairy(int argc, char **argv)
 {
     help            = arg_lit0(NULL , "help"            , "print this help and exit");
     version         = arg_lit0(NULL , "version"         , "print version information and exit");
-    verbose         = arg_lit0("v"  , "verbose"         , "verbose messages");
-    debug           = arg_lit0("d"  , "debug"           , "debug messages");
+    verbose         = arg_lit0("v"  , "verbose"         , "verbose messaging");
+    debug           = arg_lit0("d"  , "debug"           , "enables debug messages, implies -v");
     silent          = arg_lit0("s"  , "silent"          , "program will only output errors");
     showchannel     = arg_lit0(NULL , "showchannel"     , "show channel when printing irc messages to stdout");
     shownick        = arg_lit0(NULL , "shownick"        , "show nick from sender when printing irc messages to stdout");
@@ -92,9 +92,9 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            printf("Usage: %s", progname);
+            nsilent("Usage: %s", progname);
             arg_print_syntaxv(stdout,argtable,"\n");
-            printf("This is a test irc commandline client\n\n");
+            nsilent("This is a test irc commandline client\n\n");
             arg_print_glossary(stdout,argtable,"  %-30s %s\n");
             exitcode = 0;
             options.running = false;
@@ -106,8 +106,8 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            printf("'%s' example program for the \"argtable\" command line argument parser.\n",progname);
-            printf("test version\n");
+            nsilent("'%s' example program for the \"argtable\" command line argument parser.\n",progname);
+            nsilent("test version\n");
             exitcode = 0;
             options.running = false;
         }
@@ -118,9 +118,7 @@ int arg_parseprimairy(int argc, char **argv)
         if (options.running)
         {
             options.silent  = true;
-            options.verbose = false;
-            options.debug   = false;
-            verbose_printf("silent on\n");
+            verbose("silent on\n");
         }
     }
 
@@ -128,9 +126,8 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            options.silent  = false;
             options.verbose = true;
-            verbose_printf("verbose on\n");
+            verbose("verbose on\n");
         }
     }
     
@@ -138,10 +135,9 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            options.silent  = false;
-            options.verbose = true;
             options.debug   = true;
-            verbose_printf("debug on\n");
+            options.verbose = true;
+            verbose("debug on\n");
         }
     }
 
@@ -150,7 +146,7 @@ int arg_parseprimairy(int argc, char **argv)
         if (options.running)
         {
             options.configfile = *config->filename;
-            verbose_printf("using %s as config file\n", options.configfile);
+            verbose("using %s as config file\n", options.configfile);
         }
     }
 
@@ -161,7 +157,7 @@ int arg_parseprimairy(int argc, char **argv)
         {
             /* Display the error details contained in the arg_end struct.*/
             arg_print_errors(stderr,end,progname);
-            nsilent_printf("Try '%s --help' for more information.\n",progname);
+            nsilent("Try '%s --help' for more information.\n",progname);
             exitcode = 1;
             options.running = false;
         }
@@ -182,17 +178,17 @@ int arg_parsesecondary()
 			if (strncmp(mode->sval[0], "in", 2) == 0)
 			{
 				options.mode = input;
-				verbose_printf("setting mode to input\n");
+				verbose("setting mode to input\n");
 			}
 			else if (strncmp(mode->sval[0], "out", 3) == 0)
 			{
 				options.mode = output;
-				verbose_printf("setting mode to output\n");
+				verbose("setting mode to output\n");
 			}
 			else if (strncmp(mode->sval[0], "both", 4) == 0)
 			{
 				options.mode = both;
-				verbose_printf("setting mode to both\n");
+				verbose("setting mode to both\n");
 			}
 			else
 			{
@@ -207,7 +203,7 @@ int arg_parsesecondary()
         if (options.running)
         {
 			options.port = port->ival[0];
-			verbose_printf("setting port to %d\n", port->ival[0]);
+			verbose("setting port to %d\n", port->ival[0]);
 		}
 	}
 	
@@ -215,17 +211,8 @@ int arg_parsesecondary()
 	{
         if (options.running)
         {
-			options.server = server->sval[0];
-			verbose_printf("setting server to %s\n", server->sval[0]);
-		}
-	}
-	
-	if (botname->count > 0)
-	{
-        if (options.running)
-        {
-            strncpy(options.botname, botname->sval[0], MAX_BOT_NAMELEN);
-			verbose_printf("setting name to %s\n", botname->sval[0]);
+            strncpy(options.server, server->sval[0], MAX_SERVER_NAMELEN);
+			verbose("setting server to %s\n", server->sval[0]);
 		}
 	}
 	
@@ -233,11 +220,20 @@ int arg_parsesecondary()
 	{
         if (options.running)
         {
-			options.serverpassword = serverpassword->sval[0];
-			verbose_printf("using different server password\n");
+            strncpy(options.serverpassword, server->sval[0], MAX_PASSWD_LEN);
+			verbose("using different server password\n");
 		}
 	}
 
+	if (botname->count > 0)
+	{
+        if (options.running)
+        {
+            strncpy(options.botname, botname->sval[0], MAX_BOT_NAMELEN);
+			verbose("setting name to %s\n", botname->sval[0]);
+		}
+	}
+	
 	if (channel->count > 0)
 	{
         if (options.running)
@@ -247,17 +243,18 @@ int arg_parsesecondary()
             for (counter = 0; counter < options.no_channels; counter++)
             {
                 char *passwd_start = NULL;
-                options.channels[counter] = channel->sval[counter];
+                strncpy(options.channels[counter], channel->sval[0], MAX_CHANNELS_NAMELEN);
                 passwd_start = strchr(options.channels[counter], ':');
 
                 if (passwd_start != NULL)
                 {
                     *passwd_start = '\0';
-                    options.channelpasswords[counter] = passwd_start++;
-                    verbose_printf("using different password for channel %s\n", options.channels[counter]);
+                    strncpy(options.channelpasswords[counter], passwd_start++, MAX_PASSWD_LEN);
+                    verbose("changing password for channel %s\n", options.channels[counter]);
                 }
-                verbose_printf("setting channel to %s\n", channel->sval[counter]);
+                verbose("setting channel to %s\n", channel->sval[counter]);
             }
+            debug("number of channels to join: %d\n", options.no_channels);
 		}
 	}
 	
@@ -266,7 +263,7 @@ int arg_parsesecondary()
         if (options.running)
         {
             options.showchannel = true;
-			verbose_printf("messages from irc now contain the originating channel\n");
+			verbose("messages from irc now contain the originating channel\n");
         }
     }
 
@@ -275,7 +272,7 @@ int arg_parsesecondary()
         if (options.running)
         {
             options.shownick = true;
-			verbose_printf("messages from irc now contain the originating nick\n");
+			verbose("messages from irc now contain the originating nick\n");
         }
     }
 

@@ -1,0 +1,25 @@
+settings = {  
+    silent = false,
+    verbose = false,
+    debug = false,
+
+    showchannel = false,
+    shownick = false,
+
+    name = "alpha",
+    server = "irc.incas3.nl",
+    port = 6667,
+    serverpassword = "",
+    
+    channels = 
+    {
+        {
+        name    = "#spam",
+        password= "",
+        },
+        {
+        name    = "#cargate",
+        },
+    },
+}  
+

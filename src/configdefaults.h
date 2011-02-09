@@ -8,7 +8,7 @@
 #define XSTR(s) STR(s)
 #define PROG_STRING PACKAGE
 
-#define CONFIG_FILE     "~/.irccmd.conf"
+#define CONFIG_FILE     "~/.irccmd.cnf"
 #define CONFIG_VERBOSE  false
 #define CONFIG_DEBUG    false
 #define CONFIG_SILENT   false
