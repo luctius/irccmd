@@ -1,4 +1,4 @@
-AC_INIT([irccmd], [1.0], [corpeters@@incas3.eu])
+AC_INIT([irccmd], [1.0], [corpeters@incas3.eu])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 
 AC_PROG_CC

@@ -115,17 +115,17 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
             if (options.showchannel && options.shownick)
             {
-                nsilent("%s - %s: %s\n", params[0], nick, params[1]);
+                printf("%s - %s: %s\n", params[0], nick, params[1]);
             }
             else if (options.showchannel)
             {
-                nsilent("%s - %s\n", params[0], params[1]);
+                printf("%s - %s\n", params[0], params[1]);
             }
             else if (options.shownick)
             {
-                nsilent("%s: %s\n", nick, params[1]);
+                printf("%s: %s\n", nick, params[1]);
             }
-            else nsilent("%s\n", params[1]);
+            else printf("%s\n", params[1]);
         }
     }
     fflush(stdout);
@@ -293,8 +293,7 @@ int prog_main()
 
                 if (result == 0)
                 {
-//                    options.running = false;
-//                    error("error in fetching message from stdin\n");
+                    debug("stdin reset");
                 }
                 else if (result > 0)
                 {
@@ -358,6 +357,8 @@ int main(int argc, char **argv)
     {
         if ( (exitcode = arg_parseprimairy(argc, argv) ) != 0)
         {
+            exitcode = 1;
+            options.running = false;
             debug("parsing primairies failed\n");
         }
     }
