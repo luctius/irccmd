@@ -1,1 +1,2 @@
 src/irccmd        usr/bin/
+irccmd.cnf        etc/irccmd/

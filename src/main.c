@@ -365,7 +365,7 @@ int main(int argc, char **argv)
     /*parse (updated) config file*/
     if (options.running)
     {
-        if ( (exitcode = read_config_file("/etc/irccmd.cnf") ) != 0)
+        if ( (exitcode = read_config_file(SYSTEM_CONFIG_FILE) ) != 0)
         {
         }
         if ( (exitcode = read_config_file(options.configfile) ) != 0)
