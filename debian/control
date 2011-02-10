@@ -7,8 +7,7 @@ Build-Depends:  debhelper (>= 7),
                 libargtable2-dev, 
                 liblua5.1-0-dev,
                 autoconf,
-                pkg-config,
-                gdebi-core
+                pkg-config
 
 Package: irccmd
 Priority: optional
