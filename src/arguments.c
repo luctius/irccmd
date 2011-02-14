@@ -10,8 +10,10 @@ struct arg_str  *server;
 struct arg_str  *channel;
 struct arg_str  *botname;
 struct arg_str  *serverpassword;
+struct arg_lit  *noninteractive;
 struct arg_lit  *showchannel;
 struct arg_lit  *shownick;
+struct arg_rem  *remark1;
 
 struct arg_lit  *silent;
 struct arg_lit  *verbose;
@@ -37,18 +39,22 @@ int arg_parseprimairy(int argc, char **argv)
     verbose         = arg_lit0("v"  , "verbose"         , "verbose messaging");
     debug           = arg_lit0("d"  , "debug"           , "enables debug messages, implies -v");
     silent          = arg_lit0("s"  , "silent"          , "program will only output errors");
+    remark1         = arg_rem("", "");
+
+
+    mode            = arg_str0("m"  , "mode"            , "in/out/both"                , "set the mode, input, output or both");
+    port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
+    noninteractive  = arg_lit0(NULL , "noninteractive"  , "will force a non-interactive session");
     showchannel     = arg_lit0(NULL , "showchannel"     , "show channel when printing irc messages to stdout");
     shownick        = arg_lit0(NULL , "shownick"        , "show nick from sender when printing irc messages to stdout");
-    config          = arg_file0("c" , "config"          , CONFIG_FILE                 , "override default config file");
-    port            = arg_int0("p"  , "port"            , "port" XSTR(CONFIG_PORT)    , "set the port of the irc server");
-    mode            = arg_str0("m"  , "mode"            , "in/out/both"               , "set the mode, input, output or both");
-    server          = arg_str0(NULL , "server"          , CONFIG_SERVER               , "set the irc server");
-    channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL              , 0, MAX_CHANNELS, 
+    config          = arg_file0("c" , "config"          , CONFIG_FILE                  , "override default config file");
+    server          = arg_str0(NULL , "server"          , CONFIG_SERVER                , "set the irc server");
+    channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL ":<password>" , 0, MAX_CHANNELS, 
                                                                                         "set an irc channel, can be applied multiple "
                                                                                         "times, each for a new channel. An optional "
                                                                                         "password can be supplied using a column (:) as seperator.");
-    botname         = arg_str0(NULL , "name"            , CONFIG_BOTNAME              , "set the botname");
-    serverpassword  = arg_str0(NULL , "serverpassword"  , "password"                  , "set the password for the server");
+    botname         = arg_str0(NULL , "name"            , CONFIG_BOTNAME               , "set the botname");
+    serverpassword  = arg_str0(NULL , "serverpassword"  , "<password>"                 , "set the password for the server");
     end             = arg_end(20);
 
     const char* progname = PROG_STRING;
@@ -63,11 +69,13 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = debug;
         argtable[i++] = silent;
         argtable[i++] = config;
+        argtable[i++] = remark1;
 
         argtable[i++] = mode;
+        argtable[i++] = port;
+        argtable[i++] = noninteractive;
         argtable[i++] = showchannel;
         argtable[i++] = shownick;
-        argtable[i++] = port;
         argtable[i++] = server;
         argtable[i++] = botname;
         argtable[i++] = serverpassword;
@@ -273,6 +281,15 @@ int arg_parsesecondary()
         {
             options.shownick = true;
 			verbose("messages from irc now contain the originating nick\n");
+        }
+    }
+
+    if (noninteractive->count > 0)
+    {
+        if (options.running)
+        {
+            options.interactive = false;
+            verbose("interactive mode off\n");
         }
     }
 

@@ -18,6 +18,7 @@ PKG_CHECK_MODULES([lua], [lua], [],
                   [PKG_CHECK_MODULES([lua], [lua5.1] )])
 AC_SEARCH_LIBS( [arg_parse], [argtable argtable2] )
 AC_SEARCH_LIBS( [irc_create_session], [ircclient ircclient0] )
+AC_SEARCH_LIBS( [rl_callback_handler_install], [readline] )
 
 # Checks for library functions (for argtable2).
 AC_FUNC_MALLOC
@@ -43,6 +44,7 @@ AC_CHECK_HEADERS([sys/time.h])
 AC_CHECK_HEADERS([argtable2.h])
 AC_CHECK_HEADERS([libircclient.h])
 AC_CHECK_HEADERS([libircclient/libircclient.h])
+AC_CHECK_HEADERS([readline/readline.h])
 
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_FILES([Makefile])

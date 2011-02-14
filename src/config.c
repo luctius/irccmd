@@ -224,6 +224,7 @@ int read_config_file(const char *path)
         if (!options.verbose) options.verbose   = lua_boolexpr(L , "settings.verbose"        , options.verbose);
         if (!options.debug)   options.debug     = lua_boolexpr(L , "settings.debug"          , options.debug);
 
+        options.interactive                 = lua_boolexpr(L     , "settings.interactive"    , options.interactive);
         options.showchannel                 = lua_boolexpr(L     , "settings.showchannel"    , options.showchannel);
         options.shownick                    = lua_boolexpr(L     , "settings.shownick"       , options.shownick);
         lua_intexpr(L                                            , "settings.port"           , &options.port);

@@ -7,6 +7,7 @@ Build-Depends:  debhelper (>= 7),
                 libargtable2-dev, 
                 liblua5.1-0-dev,
                 autoconf,
+                libreadline-dev,
                 pkg-config
 
 Package: irccmd
@@ -15,5 +16,6 @@ Architecture: amd64 i386 armel
 Section: INCAS
 Pre-Depends:    libircclient1, 
                 libargtable2-0, 
+                libreadline | libreadline5 | libreadline6,
                 liblua5.1-0
 Description: Commandline bot for the INCAS3 IRC network

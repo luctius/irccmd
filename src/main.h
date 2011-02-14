@@ -44,6 +44,8 @@ struct config_options
     bool debug;
     bool silent;
 
+    bool interactive;    
+
     bool showchannel;
     bool shownick;
 

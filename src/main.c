@@ -10,6 +10,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "config.h"
 #include "arguments.h"
 #include "main.h"
@@ -28,7 +31,7 @@ struct config_options options =
     .verbose          = CONFIG_VERBOSE,           /**< if this is set, messages which would not be interresting to normal users can be shown */ 
     .configfile       = CONFIG_FILE,              /**< This will define where to look for the config file */ 
 
-
+    .interactive      = true,
     .showchannel      = CONFIG_SHOWCHANNEL,       /**< This will enable showing of the channel in the irc output */ 
     .shownick         = CONFIG_SHOWNICK,          /**< This will enable showing of the nickname in the irc output */ 
 
@@ -158,9 +161,8 @@ size_t sgets(int fd, char *line, size_t size)
     return i;
 }
 
-bool send_irc_message(char *msg)
+void send_irc_message(char *msg)
 {
-    bool retval = false;
     int channel_id = 0;
     char channel[MAX_CHANNELS_NAMELEN];
     char *msg_start = msg;
@@ -209,11 +211,17 @@ bool send_irc_message(char *msg)
             strncpy(channel, options.channels[channel_id], sizeof(channel) );
             debug("sending: %s to channel %s\n", msg_start, channel);
             irc_send_raw_msg(msg_start, channel);
-            verbose(".");
+
+            if (options.interactive)
+            {
+                add_history(msg);
+            }
+            else verbose(".");
+            return;
         }
-        retval = true;
     }
-    return retval;
+    error("failed to parse message\n");
+    options.running = false;
 }
 
 /** 
@@ -285,7 +293,11 @@ int prog_main()
         else 
         {
             process_irc(&readset, &writeset);
-            if (FD_ISSET(stdin_fd, &readset) )
+            if (options.interactive)
+            {
+                rl_callback_read_char();
+            }
+            else if (FD_ISSET(stdin_fd, &readset) )
             {
                 debug("stdin is set\n");
                 memset(buff, 0, sizeof(buff) );
@@ -300,15 +312,12 @@ int prog_main()
                     debug("received message %s\n", buff);
                     if (options.running)
                     {
-                        if( (options.running = send_irc_message(buff) ) == false)
-                        {
-                            error("failed to parse message\n");
-                        }
+                        send_irc_message(buff);
                     }
                 }
             }
         }
-        usleep(100);
+//        usleep(100);
 
         /*counter++;
         if (counter > 1000) options.running = false;*/
@@ -413,11 +422,25 @@ int main(int argc, char **argv)
         verbose("mode is set to '%s'\n", temp[options.mode]);
     }
 
+    if (isatty(fileno(stdin) ) == false)
+    {
+        if (options.interactive == true) warning("Turning interactive mode off; stdin is a pipe\n");
+        options.interactive = false;
+    }
+
     /*let's fire it up*/
     if (options.running)
     {
-        /* normal case: take the command line options at face value */
+        char prompt[strlen(options.botname) + strlen(options.channels[0]) +3];
+
+        if (options.interactive)
+        {
+            sprintf(prompt, "%s@%s: ", options.botname, options.channels[0]);
+            rl_callback_handler_install(prompt, send_irc_message);
+        }
+
         exitcode = prog_main();
+        if (options.interactive) rl_callback_handler_remove();
     }
 
     /*exitting gracefully*/
