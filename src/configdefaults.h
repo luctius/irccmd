@@ -8,6 +8,8 @@
 #define XSTR(s) STR(s)
 #define PROG_STRING PACKAGE
 
+#define COMMAND_PREFIX  "/"
+
 #define SYSTEM_CONFIG_FILE     "/etc/irccmd/irccmd.cnf"
 #define CONFIG_FILE     "~/.irccmd.cnf"
 #define CONFIG_VERBOSE  false

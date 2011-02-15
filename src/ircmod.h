@@ -2,6 +2,7 @@
 #define ircmod_h_
 
 #include "def.h"
+#include "main.h"
 
 #ifdef HAVE_LIBIRCCLIENT_H
     #include <libircclient.h>
@@ -13,6 +14,8 @@
 
 int create_irc_session();
 int close_irc_session();
+bool join_irc_channel(char *channel, char *password);
+bool part_irc_channel(char *channel);
 
 int add_irc_descriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
 int process_irc(fd_set *in_set, fd_set *out_set);

@@ -21,14 +21,14 @@ static const char* lua_stringexpr(lua_State *L, const char *expr, const char *de
     char buf[256] = "";
 
     /* Assign the Lua expression to a Lua global variable. */
-    sprintf(buf, "evalExpr=%s", expr);
+    (void) snprintf(buf, 255, "evalExpr=%s", expr);
 
-    if (!luaL_dostring(L, buf) )
+    if (luaL_dostring(L, buf) == 0)
     {
         /* Get the value of the global varibable */
         lua_getglobal(L, "evalExpr");
 
-        if ( lua_isstring(L, -1) )
+        if (lua_isstring(L, -1) == 1)
         {
             r = lua_tostring(L, -1);
         }
@@ -54,14 +54,14 @@ static int lua_numberexpr(lua_State *L, const char *expr, double *out)
     char buf[256] = "";
 
     /* Assign the Lua expression to a Lua global variable. */
-    sprintf( buf, "evalExpr=%s", expr );
+    (void) snprintf(buf, 255, "evalExpr=%s", expr);
 
-    if (!luaL_dostring(L, buf) )
+    if (luaL_dostring(L, buf) == 0)
     {
         /* Get the value of the global varibable */
         lua_getglobal(L, "evalExpr");
 
-        if (lua_isnumber(L, -1) )
+        if (lua_isnumber(L, -1) == 1)
         {
             *out = lua_tonumber(L, -1);
             ok = 1;
@@ -86,10 +86,10 @@ static int lua_numberexpr(lua_State *L, const char *expr, double *out)
 */
 static int lua_intexpr(lua_State* L, const char* expr, int* out)
 {
-    double d;
+    double d = 0;
     int ok = lua_numberexpr(L, expr, &d);
 
-    if (ok)
+    if (ok == 1)
     {
         *out = (int) d;
     }
@@ -107,22 +107,22 @@ static int lua_intexpr(lua_State* L, const char* expr, int* out)
 * 
 * @return the bool retreived from lua via the expression
 */
-static int lua_boolexpr(lua_State* L, const char* expr, bool def)
+static bool lua_boolexpr(lua_State* L, const char* expr, bool def)
 {
-    int ok = def;
+    bool ok = def;
     char buf[256] = "";
 
     /* Assign the Lua expression to a Lua global variable. */
-    sprintf(buf, "evalExpr=%s", expr);
+    (void) snprintf(buf, 255, "evalExpr=%s", expr);
 
-    if (!luaL_dostring(L, buf) )
+    if (luaL_dostring(L, buf) == 0)
     {
         /* Get the value of the global varibable */
         lua_getglobal(L, "evalExpr");
 
-        if (lua_isboolean(L, -1) )
+        if (lua_isboolean(L, -1) == true)
         {
-            ok = lua_toboolean(L, -1);
+            ok = (bool) lua_toboolean(L, -1);
         }
 
         /* remove lua_getglobal value */
@@ -218,6 +218,11 @@ int read_config_file(const char *path)
     
     if (L != NULL)
     {
+        int counter = 0;
+        char *basestr = "settings.channels[%d].%s";
+        char *namestr = "name";
+        char *passwdstr = "password";
+
         verbose("found the config file %s\n", path);
 
         if (!options.silent)  options.silent    = lua_boolexpr(L , "settings.silent"         , options.silent);
@@ -227,22 +232,18 @@ int read_config_file(const char *path)
         options.interactive                 = lua_boolexpr(L     , "settings.interactive"    , options.interactive);
         options.showchannel                 = lua_boolexpr(L     , "settings.showchannel"    , options.showchannel);
         options.shownick                    = lua_boolexpr(L     , "settings.shownick"       , options.shownick);
-        lua_intexpr(L                                            , "settings.port"           , &options.port);
+        (void) lua_intexpr(L                                     , "settings.port"           , &options.port);
         strncpy(options.server              , lua_stringexpr(L   , "settings.server"         , options.server)         , MAX_SERVER_NAMELEN);
         strncpy(options.botname             , lua_stringexpr(L   , "settings.name"           , options.botname)        , MAX_BOT_NAMELEN);
         strncpy(options.serverpassword      , lua_stringexpr(L   , "settings.serverpassword" , options.serverpassword) , MAX_PASSWD_LEN);
 
-        int counter = 0;
-        char *basestr = "settings.channels[%d].%s";
-        char *namestr = "name";
-        char *passwdstr = "password";
         for (counter = 0; counter < MAX_CHANNELS; counter++)
         {
             char name_buff[strlen(basestr) + strlen(namestr) +2];
             char passwd_buff[strlen(basestr) + strlen(passwdstr) +2];
 
-            snprintf(name_buff, sizeof(name_buff) -1, basestr, counter +1, namestr);
-            snprintf(passwd_buff, sizeof(passwd_buff) -1, basestr, counter +1, passwdstr);
+            (void) snprintf(name_buff, sizeof(name_buff) -1, basestr, counter +1, namestr);
+            (void) snprintf(passwd_buff, sizeof(passwd_buff) -1, basestr, counter +1, passwdstr);
 
             strncpy(options.channels[counter],         lua_stringexpr(L, name_buff,   options.channels[counter]),         MAX_CHANNELS_NAMELEN);
             strncpy(options.channelpasswords[counter], lua_stringexpr(L, passwd_buff, options.channelpasswords[counter]), MAX_PASSWD_LEN);

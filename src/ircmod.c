@@ -2,7 +2,6 @@
 #include <unistd.h>
 
 #include "ircmod.h"
-#include "main.h"
 #include "configdefaults.h"
 
 irc_session_t *session;
@@ -75,6 +74,32 @@ irc_callbacks_t *get_callback()
 	}
 
 	return &callbacks;
+}
+
+bool join_irc_channel(char *channel, char *password)
+{
+    int retval = 0;
+    verbose("joining channel: %s\n", channel);
+    retval = irc_cmd_join(session, channel, password);
+    if (retval != 0)
+    {
+        error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+        return false;
+    }
+    return true;
+}
+
+bool part_irc_channel(char *channel)
+{
+    int retval = 0;
+    verbose("leaving channel: %s\n", channel);
+    retval = irc_cmd_part(session, channel);
+    if (retval != 0)
+    {
+        error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+        return false;
+    }
+    return true;
 }
 
 int create_irc_session()

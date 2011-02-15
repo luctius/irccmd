@@ -10,14 +10,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include "config.h"
 #include "arguments.h"
 #include "main.h"
 #include "configdefaults.h"
 #include "ircmod.h"
+#include "input.h"
 
 /** 
 * This is the config structure where all the important configuration options are located.
@@ -44,13 +42,15 @@ struct config_options options =
     .no_channels      = 1,                        /**< this will hold the number of channels the bot would like to join */
     .botname          = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */ 
     .botname_nr       = 1,
+
+    .current_channel_id  = 0,
 };
      
 /** 
 * A simple signal replacement for SIGINT and SIGHUP.
 * when called, this will gracefully end the program.
 */
-void sigfunc()
+static void sigfunc()
 {
     debug("Received signal\n");
     options.running = false;
@@ -66,9 +66,8 @@ void sigfunc()
 * @param params The parameters of the event, can be zero.
 * @param count The number of parameters.
 */
-void irc_server_connect(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
+static void irc_server_connect(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
-    int retval = 0;
     int counter = 0;
 
     irc_send_raw_msg("login bot bone", "userserv");
@@ -76,9 +75,7 @@ void irc_server_connect(irc_session_t *session, const char *event, const char *o
 
     for (counter = 0; counter < options.no_channels; counter++)
     {
-	    verbose("joining channel: %s\n", options.channels[counter]);
-    	retval = irc_cmd_join(session, options.channels[counter], options.channelpasswords[counter]);
-        if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+    	join_irc_channel(options.channels[counter], options.channelpasswords[counter]);
     }
 }
 
@@ -92,7 +89,7 @@ void irc_server_connect(irc_session_t *session, const char *event, const char *o
 * @param params The parameters of the event, can be zero.
 * @param count The number of parameters.
 */
-void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
+static void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     options.connected = true;
     verbose("joined channel %s\n", params[0]);
@@ -108,7 +105,7 @@ void irc_mode_callback(irc_session_t *session, const char *event, const char *or
 * @param params The parameters of the event, can be zero.
 * @param count The number of parameters.
 */
-void irc_channel_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
+static void irc_channel_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     if ( (options.mode & output) > 0)
     {
@@ -116,7 +113,14 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
         {
             char nick[100];
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
-            if (options.showchannel && options.shownick)
+            if (options.interactive)
+            {
+                if (strncmp(params[0], options.channels[options.current_channel_id], strlen(options.channels[options.current_channel_id]) ) )
+                {
+                    printf("%s@%s: %s\n", nick, params[0], params[1]);
+                }
+            }
+            else if (options.showchannel && options.shownick)
             {
                 printf("%s - %s: %s\n", params[0], nick, params[1]);
             }
@@ -135,106 +139,13 @@ void irc_channel_callback(irc_session_t *session, const char *event, const char 
 }
 
 /** 
-* reads a line from a file
-* 
-* @param fd file descriptor of the file to read
-* @param line pointer to the storage where the read line should reside
-* @param size the maximum size of the given storage
-* 
-* @return the number of characters read
-*/
-size_t sgets(int fd, char *line, size_t size)
-{
-    size_t i;
-    for ( i = 0; i < size - 1; ++i )
-    {
-        char ch = 0;
-        if (read(fd, &ch, sizeof(ch) ) == 0) ch = EOF;
-        if ( ch == '\n' || ch == EOF )
-        {
-            break;
-        }
-        line[i] = ch;
-    }
-    line[i] = '\0';
-
-    return i;
-}
-
-void send_irc_message(char *msg)
-{
-    int channel_id = 0;
-    char channel[MAX_CHANNELS_NAMELEN];
-    char *msg_start = msg;
-    char *channel_start = msg;
-
-    debug("send_irc-message\n");
-    if (msg != NULL)
-    {
-        //check if the first non-white-space character is a '#'
-        channel_start = strchr(msg, '#');
-        if (channel_start != NULL)
-        {
-            msg_start = strchr(channel_start, ' ');
-
-            if (msg_start != NULL)
-            {
-                *msg_start = '\0';
-                msg_start++;
-            }
-        }
-
-        if (msg_start != NULL)
-        {
-            debug("msg: %s\n", msg_start);
-
-            //if so, find the channel in the known channels
-            if (channel_start != NULL)
-            {
-                int len = msg_start - channel_start;
-
-                debug("channel: %s\n", channel_start);
-                while (strncmp(options.channels[channel_id], channel_start, len) != 0)
-                {
-                    channel_id++;
-                    if (channel_id >= options.no_channels)
-                    {
-                        verbose("channel %s not found, defaulting to %s\n", channel_start, options.channels[0]);
-                        channel_id = 0;
-                        break;
-                    }
-                }
-            }
-
-            //send the message to the correct channel
-            memset(channel, 0, sizeof(channel));
-            strncpy(channel, options.channels[channel_id], sizeof(channel) );
-            debug("sending: %s to channel %s\n", msg_start, channel);
-            irc_send_raw_msg(msg_start, channel);
-
-            if (options.interactive)
-            {
-                add_history(msg);
-            }
-            else verbose(".");
-            return;
-        }
-    }
-    error("failed to parse message\n");
-    options.running = false;
-}
-
-/** 
 * Main application loop.
 * 
 * @return the succes or failure of closing the irc connection
 */
-int prog_main()
+static int prog_main()
 {
-    int counter = 0;
-    char buff[300];
-    int stdin_fd = STDIN_FILENO;
-    int maxfd = stdin_fd;
+    int maxfd = STDIN_FILENO;
     fd_set readset;
     fd_set writeset;
     struct timeval tv;
@@ -271,8 +182,7 @@ int prog_main()
         {
             if (options.connected)
             {
-                debug("setting stdin in select readset\n");
-                FD_SET(stdin_fd, &readset);
+                FD_SET(STDIN_FILENO, &readset);
             }
             else debug("not setting stdin; waiting for channel join\n");
         }
@@ -280,11 +190,8 @@ int prog_main()
         add_irc_descriptors(&readset, &writeset, &maxfd);
         result = select(maxfd +1, &readset, &writeset, NULL, &tv);
 
-        debug("post select\n");
-
         if (result == 0)
         {
-            debug("select result 0\n");
         } 
         else if (result < 0)
         {
@@ -293,28 +200,9 @@ int prog_main()
         else 
         {
             process_irc(&readset, &writeset);
-            if (options.interactive)
+            if (FD_ISSET(STDIN_FILENO, &readset) )
             {
-                rl_callback_read_char();
-            }
-            else if (FD_ISSET(stdin_fd, &readset) )
-            {
-                debug("stdin is set\n");
-                memset(buff, 0, sizeof(buff) );
-                result = sgets(stdin_fd, buff, sizeof(buff) );
-
-                if (result == 0)
-                {
-                    debug("stdin reset");
-                }
-                else if (result > 0)
-                {
-                    debug("received message %s\n", buff);
-                    if (options.running)
-                    {
-                        send_irc_message(buff);
-                    }
-                }
+                process_input();
             }
         }
 //        usleep(100);
@@ -422,29 +310,20 @@ int main(int argc, char **argv)
         verbose("mode is set to '%s'\n", temp[options.mode]);
     }
 
-    if (isatty(fileno(stdin) ) == false)
-    {
-        if (options.interactive == true) warning("Turning interactive mode off; stdin is a pipe\n");
-        options.interactive = false;
-    }
 
     /*let's fire it up*/
     if (options.running)
     {
-        char prompt[strlen(options.botname) + strlen(options.channels[0]) +3];
-
-        if (options.interactive)
-        {
-            sprintf(prompt, "%s@%s: ", options.botname, options.channels[0]);
-            rl_callback_handler_install(prompt, send_irc_message);
-        }
-
+        init_readline();
         exitcode = prog_main();
-        if (options.interactive) rl_callback_handler_remove();
+        deinit_readline();
     }
+
 
     /*exitting gracefully*/
     verbose("exiting with: %d\n", exitcode);
+
+    printf("\n");
     return exitcode;
 }
 

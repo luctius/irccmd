@@ -34,6 +34,9 @@ static void arg_clean()
 
 int arg_parseprimairy(int argc, char **argv)
 {
+    int exitcode = 0;
+    int nerrors = 0;
+
     help            = arg_lit0(NULL , "help"            , "print this help and exit");
     version         = arg_lit0(NULL , "version"         , "print version information and exit");
     verbose         = arg_lit0("v"  , "verbose"         , "verbose messaging");
@@ -57,9 +60,6 @@ int arg_parseprimairy(int argc, char **argv)
     serverpassword  = arg_str0(NULL , "serverpassword"  , "<password>"                 , "set the password for the server");
     end             = arg_end(20);
 
-    const char* progname = PROG_STRING;
-    int exitcode = 0;
-    int nerrors = 0;
 
     {
         int i = 0;
@@ -87,7 +87,7 @@ int arg_parseprimairy(int argc, char **argv)
     if (arg_nullcheck(argtable) != 0)
     {
         /* NULL entries were detected, some allocations must have failed */
-        error("%s: insufficient memory\n",progname);
+        error("%s: insufficient memory\n",PROG_STRING);
         exitcode = 1;
         options.running = false;
     }
@@ -100,7 +100,7 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            nsilent("Usage: %s", progname);
+            nsilent("Usage: %s", PROG_STRING);
             arg_print_syntaxv(stdout,argtable,"\n");
             nsilent("This is a test irc commandline client\n\n");
             arg_print_glossary(stdout,argtable,"  %-30s %s\n");
@@ -114,7 +114,7 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            nsilent("'%s' example program for the \"argtable\" command line argument parser.\n",progname);
+            nsilent("'%s' example program for the \"argtable\" command line argument parser.\n",PROG_STRING);
             nsilent("test version\n");
             exitcode = 0;
             options.running = false;
@@ -153,7 +153,7 @@ int arg_parseprimairy(int argc, char **argv)
     {
         if (options.running)
         {
-            options.configfile = *config->filename;
+            strncpy(options.configfile, config->filename[0], 100);
             verbose("using %s as config file\n", options.configfile);
         }
     }
@@ -164,8 +164,8 @@ int arg_parseprimairy(int argc, char **argv)
         if (options.running)
         {
             /* Display the error details contained in the arg_end struct.*/
-            arg_print_errors(stderr,end,progname);
-            nsilent("Try '%s --help' for more information.\n",progname);
+            arg_print_errors(stderr,end,PROG_STRING);
+            nsilent("Try '%s --help' for more information.\n",PROG_STRING);
             exitcode = 1;
             options.running = false;
         }

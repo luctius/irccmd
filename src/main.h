@@ -11,11 +11,11 @@
 #define MAX_BOT_NAMELEN (8)
 #define MAX_PASSWD_LEN (20)
 
-#define verbose(...) { if (options.verbose) { printf("v- " __VA_ARGS__); fflush(stdout); } }
-#define debug(...) { if (options.debug) { printf("d- " __VA_ARGS__); fflush(stdout); } }
-#define nsilent(...) { if (options.silent == false) { printf(__VA_ARGS__); fflush(stdout); } }
-#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); fflush(stderr); }
-#define warning(...) { if (options.silent == false) { fprintf(stderr, "WARNING: " __VA_ARGS__); fflush(stderr); } }
+#define verbose(...) { if (options.verbose) { printf("v- " __VA_ARGS__); (void) fflush(stdout); } }
+#define debug(...) { if (options.debug) { printf("d- " __VA_ARGS__); (void) fflush(stdout); } }
+#define nsilent(...) { if (options.silent == false) { printf(__VA_ARGS__); (void) fflush(stdout); } }
+#define error(...) { fprintf(stderr, "e- " __VA_ARGS__); (void) fflush(stderr); }
+#define warning(...) { if (options.silent == false) { fprintf(stderr, "w- " __VA_ARGS__); (void) fflush(stderr); } }
 
 
 /** 
@@ -38,7 +38,7 @@ struct config_options
     bool running;
     bool connected;
 
-    const char *configfile;
+    char configfile[100];
     enum modes mode;
     bool verbose;
     bool debug;
@@ -58,6 +58,7 @@ struct config_options
     char channelpasswords[MAX_CHANNELS][MAX_PASSWD_LEN];
 
     int botname_nr;
+    int current_channel_id;
 };
 
 extern struct config_options options;
