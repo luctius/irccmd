@@ -1,3 +1,11 @@
+irccmd (0.0.7) lucid; urgency=low
+
+  * Used commit 28f0f01d6ceb1c152da22f59dad4c7106e31385e as base
+  * Added simple irc commands
+  * Added readline support
+
+ -- Cor Peters <corpeters@incas3.eu>  Wed, 11 Feb 2011 11:20:59 +0200
+
 irccmd (0.0.6) lucid; urgency=low
 
   * Usedcommit 986435e48de6baf21c2de74c26442d54028df4a9 as base

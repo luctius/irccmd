@@ -155,7 +155,7 @@ static int prog_main()
     callbacks->event_channel = irc_channel_callback;
 	callbacks->event_join    = irc_mode_callback;
 
-    tv.tv_sec = 2;
+    tv.tv_sec = 20;
     tv.tv_usec = 0;
 
     debug("starting main loop\n");
@@ -205,7 +205,7 @@ static int prog_main()
                 process_input();
             }
         }
-//        usleep(100);
+        usleep(10);
 
         /*counter++;
         if (counter > 1000) options.running = false;*/
