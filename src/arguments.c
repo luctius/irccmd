@@ -47,9 +47,9 @@ int arg_parseprimairy(int argc, char **argv)
 
     mode            = arg_str0("m"  , "mode"            , "in/out/both"                , "set the mode, input, output or both");
     port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
-    noninteractive  = arg_lit0(NULL , "noninteractive"  , "will force a non-interactive session");
-    showchannel     = arg_lit0(NULL , "showchannel"     , "show channel when printing irc messages to stdout");
-    shownick        = arg_lit0(NULL , "shownick"        , "show nick from sender when printing irc messages to stdout");
+    noninteractive  = arg_lit0(NULL , "noninteractive"                                 , "will force a non-interactive session");
+    showchannel     = arg_lit0(NULL , "showchannel"                                    , "show channel when printing irc messages to stdout");
+    shownick        = arg_lit0(NULL , "shownick"                                       , "show nick from sender when printing irc messages to stdout");
     config          = arg_file0("c" , "config"          , CONFIG_FILE                  , "override default config file");
     server          = arg_str0(NULL , "server"          , CONFIG_SERVER                , "set the irc server");
     channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL ":<password>" , 0, MAX_CHANNELS, 

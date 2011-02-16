@@ -34,7 +34,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
             if (strlen(options.botname) <= (MAX_BOT_NAMELEN -1) )
             {
                 sprintf(options.botname, "%sX", options.botname);
-                debug("new nick is %s", options.botname);
+                verbose("new nick is %s", options.botname);
             }
             else if (strlen(options.botname) >= (MAX_BOT_NAMELEN) )
             {
@@ -47,7 +47,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
             if (options.botname_nr < 0xF)
             {
                 options.botname[strlen(options.botname) -1] = '\0';
-                sprintf(options.botname, "%s%X", options.botname, options.botname_nr++);
+                sprintf(options.botname, "%s%X", options.botname, ++options.botname_nr);
 
                 verbose("retrying with nick: %s\n", options.botname);
                 create_irc_session();
