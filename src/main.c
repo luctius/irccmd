@@ -115,7 +115,7 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
             if (options.interactive)
             {
-                if (strncmp(params[0], options.channels[options.current_channel_id], strlen(options.channels[options.current_channel_id]) ) )
+                if (strncmp(params[0], options.channels[options.current_channel_id], strlen(options.channels[options.current_channel_id]) ) == 0)
                 {
                     printf("%s@%s: %s\n", nick, params[0], params[1]);
                 }

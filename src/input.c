@@ -8,6 +8,7 @@
 #include "main.h"
 #include "configdefaults.h"
 #include "ircmod.h"
+#include "commands.h"
 #include "input.h"
 
 /* Filescope variables */
@@ -19,35 +20,8 @@ static void process_command(char *line);
 static void send_irc_message(char *msg);
 static size_t sgets(int fd, char *line, size_t size);
 static int get_channel(char *channel);
-static void change_prompt();
 static char **irccmd_completion(char *text, int start, int end);
 static bool valid_argument(char *caller, char *arg, bool req_args);
-
-/* Command definitions*/
-struct commands
-{
-    char *name;             /* User printable name of the function. */
-    bool (*func)(char *);   /* Function to call to do the job. */
-    char *doc;              /* Documentation for this function.  */
-    bool req_args;          /* True if the commands expects arguments */
-};
-
-static bool com_help(char *arg);
-static bool com_exit(char *arg);
-static bool com_join(char *arg);
-static bool com_list(char *arg);
-static bool com_channel(char *arg);
-static bool com_leave(char *arg);
-
-static struct commands commands[] = {
-     { "/help"      , com_help     , "displays this help"    , false } ,
-     { "/exit"      , com_exit     , "quits the application" , false } ,
-     { "/join"      , com_join     , "quits the application" , true  } ,
-     { "/list"      , com_list     , "quits the application" , false } ,
-     { "/channel"   , com_channel  , "quits the application" , true  } ,
-     { "/leave"     , com_leave    , "quits the application" , false } ,
-     { (char *)NULL , (void *)NULL , (char *)NULL            , false } 
-};
 
 void init_readline()
 {
@@ -120,19 +94,32 @@ void process_input()
     }
 }
 
+void change_prompt()
+{
+    if (options.interactive) 
+    {
+        free(prompt);
+
+        /* Allocate and create prompt */
+        prompt = malloc(strlen(options.botname) + strlen(options.channels[options.current_channel_id]) +3);
+        sprintf(prompt, "%s@%s: ", options.botname, options.channels[options.current_channel_id]);
+        debug("changing prompt to: %s", prompt);
+
+        rl_callback_handler_install(prompt, process_command);
+    }
+}
+
 static char* ltrim(char* s) 
 {
     char* newstart = s;
 
-    debug("old string: %s\n", s);
-    while (isspace( *newstart)) {
-            ++newstart;
-    }
+    debug("old string: |%s|\n", s);
 
-    /* newstart points to first non-whitespace char (which might be '\0') */
+    while (isspace( *newstart) ) ++newstart; /* newstart points to first non-whitespace char (which might be '\0') */
     memmove(s, newstart, strlen(newstart) + 1); /* don't forget to move the '\0' terminator*/
-    s[strlen(s)] = '\0';
-    debug("new string: %s\n", s);
+    while (isspace(s[strlen(s) -1]) && strlen(s) > 0) s[strlen(s) -1] = '\0'; /* Remove trailing spaces */
+
+    debug("new string: |%s|\n", s);
 
     return s;
 }
@@ -159,7 +146,6 @@ static void process_command(char *line)
             *arguments = '\0';
             arguments++;
             arguments = ltrim(arguments);
-            debug("arguments are %s\n", arguments);
         }
 
         debug("command is %s\n", command);
@@ -180,7 +166,7 @@ static void process_command(char *line)
             /* Execute command*/
             if (valid_argument(command, arguments, commands[index].req_args) )
             {
-                verbose("executing command: %s\n", command);
+                verbose("executing command: %s %s\n", command, arguments);
                 if (commands[index].func(arguments) == false)
                 {
                     options.running = false;
@@ -204,22 +190,6 @@ static void process_command(char *line)
     }
     else send_irc_message(line);
 }
-
-static void change_prompt()
-{
-    if (options.interactive) 
-    {
-        free(prompt);
-
-        /* Allocate and create prompt */
-        prompt = malloc(strlen(options.botname) + strlen(options.channels[options.current_channel_id]) +3);
-        sprintf(prompt, "%s@%s: ", options.botname, options.channels[options.current_channel_id]);
-        debug("changing prompt to: %s", prompt);
-
-        rl_callback_handler_install(prompt, process_command);
-    }
-}
-
 
 static void send_irc_message(char *msg)
 {
@@ -413,187 +383,5 @@ static char **irccmd_completion(char *text, int start, int end)
     }
 
     return matches;
-}
-
-/* Commands */
-static bool com_help(char *arg)
-{
-    int index = 0;
-    nsilent("This is the commands overview of %s\n\n", PROG_STRING);
-    
-    while (commands[index].name)
-    {
-        nsilent("%s\t\t%s\n", commands[index].name, commands[index].doc);
-        index++;
-    }
-    nsilent("\n");
-
-    return true;
-}
-
-static bool com_exit(char *arg)
-{
-    options.running = false;
-    return true;
-}
-
-static bool com_list(char *arg)
-{
-    int counter = 0;
-
-    for (counter = 0; counter < options.no_channels; counter++)
-    {
-        nsilent("%s\n", options.channels[counter]);
-    }
-    nsilent("\n");
-
-    return true;
-}
-
-static bool com_channel(char *arg)
-{
-    int counter = 0;
-
-    for (counter = 0; counter < options.no_channels; counter++)
-    {
-        if (strncmp(options.channels[counter], arg, MAX_CHANNELS_NAMELEN) == 0)
-        {
-            options.current_channel_id = counter;
-            change_prompt();
-            return true;
-        }
-    }
-    warning("channel %s not found\n", arg);
-
-    return true;
-}
-
-static bool com_join(char *arg)
-{
-    int counter = 0;
-    int index = options.no_channels;
-    char *channel = NULL;
-    char *password = NULL;
-
-    /* Fetch channel and password */
-    channel = arg;
-    password = strchr(arg, ' ');
-    if (password != NULL)
-    {
-        *password = '\0';
-        password++;
-    }
-
-    /* Check if the channel is allready known */
-    for (counter = 0; counter < options.no_channels; counter++)
-    {
-        if (strncmp(options.channels[counter], channel, MAX_CHANNELS_NAMELEN) == 0)
-        {
-            warning("Allready joined channel %s\n", channel);
-            return true;
-        }
-    }
-
-    /* Clearing new channel entry */
-    debug("clearing last channel\n");
-    if (options.no_channels < MAX_CHANNELS)
-    {
-        memset(options.channels[options.no_channels], '\0', MAX_CHANNELS_NAMELEN);
-        memset(options.channelpasswords[options.no_channels], '\0', MAX_CHANNELS_NAMELEN);
-    }
-    else
-    {
-        error("Channel list if full\n");
-        return true;
-    }
-
-    /* Put the channel in the channel list */
-    strncpy(options.channels[index], channel, MAX_CHANNELS_NAMELEN);
-    if (password != NULL) strncpy(options.channelpasswords[index], password, MAX_PASSWD_LEN);
-    debug("joining %s\n", options.channels[index]);
-
-    /* Join the channel */
-    if (join_irc_channel(options.channels[index], options.channelpasswords[index]) == false)
-    {
-        warning("unable to join %s\n", options.channels[index]);
-    }
-    else
-    {
-        debug("old no channels[%d] and current channel id[%d]\n", options.no_channels, options.current_channel_id);
-        options.no_channels = index +1;
-        options.current_channel_id = index;
-        debug("new no channels[%d] and current channel id[%d]\n", options.no_channels, options.current_channel_id);
-        change_prompt();
-    }
-
-    return true;
-}
-
-static bool com_leave(char *arg)
-{
-    int temp_channel = 0;
-
-    if (arg != NULL)
-    {
-        if (strlen(arg) > 0)
-        {
-            /* find channel id */
-            /* Check if the channel is allready known */
-            int counter = 0;
-            for (counter = 0; counter < options.no_channels; counter++)
-            {
-                if (strncmp(options.channels[counter], arg, MAX_CHANNELS_NAMELEN) == 0)
-                {
-                    options.current_channel_id = counter;
-                    counter = 100;
-                }
-            }
-        }
-    }
-
-    if (options.no_channels == 1)
-    {
-        error("Cannot close last channel!\n");
-        return true;
-    }
-
-    debug("channel to leave %s[%d]\n", options.channels[options.current_channel_id], options.current_channel_id);
-
-    /* Part from channel*/
-    part_irc_channel(options.channels[options.current_channel_id]);
-    verbose("leaving channel: %s", options.channels[options.current_channel_id]);
-
-    /* Copy another channel in place */
-    if (options.current_channel_id < (options.no_channels -1) )
-    {
-        int cc_id = options.current_channel_id;
-        int lc_id = options.no_channels -1;
-
-        debug("copying channel[%d]: %s in place of chanel[%d]: %s", cc_id, options.channels[cc_id], lc_id, options.channels[lc_id]);
-
-        /* Copy last channel to current channel position */
-        strncpy(options.channels[cc_id], options.channels[lc_id], MAX_CHANNELS_NAMELEN);
-        memset(options.channelpasswords[cc_id], '\0', MAX_CHANNELS_NAMELEN);
-
-        if (strlen(options.channelpasswords[lc_id]) > 0)
-        {
-            debug("copying channel password\n");
-            strncpy(options.channelpasswords[cc_id], options.channelpasswords[lc_id], MAX_CHANNELS_NAMELEN);
-        }
-        
-    }
-    /* Clear last channel */
-    debug("clearing last channel\n");
-    memset(options.channels[options.no_channels -1], '\0', MAX_CHANNELS_NAMELEN);
-    memset(options.channelpasswords[options.no_channels -1], '\0', MAX_CHANNELS_NAMELEN);
-
-    debug("number of channels lowered to %d\n", options.no_channels);
-    options.no_channels--;
-
-    /* Go to default channel*/
-    options.current_channel_id = temp_channel;
-    change_prompt();
-
-    return true;
 }
 
