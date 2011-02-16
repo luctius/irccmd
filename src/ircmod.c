@@ -30,20 +30,30 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
             {
                 sprintf(options.botname, "%s_", options.botname);
             }
+
+            if (strlen(options.botname) <= (MAX_BOT_NAMELEN -1) )
+            {
+                sprintf(options.botname, "%sX", options.botname);
+                debug("new nick is %s", options.botname);
+            }
             else if (strlen(options.botname) >= (MAX_BOT_NAMELEN) )
             {
                 options.running = false;
             }
         }
 
-        if (options.botname_nr < 0xF)
+        if (options.running)
         {
-            sprintf(options.botname, "%s%X", options.botname, options.botname_nr++);
+            if (options.botname_nr < 0xF)
+            {
+                options.botname[strlen(options.botname) -1] = '\0';
+                sprintf(options.botname, "%s%X", options.botname, options.botname_nr++);
 
-            verbose("retrying with nick: %s\n", options.botname);
-            create_irc_session();
+                verbose("retrying with nick: %s\n", options.botname);
+                create_irc_session();
+            }
+            else options.running = false;
         }
-        else options.running = false;
     }
 }
 

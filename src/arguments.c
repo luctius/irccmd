@@ -251,7 +251,7 @@ int arg_parsesecondary()
             for (counter = 0; counter < options.no_channels; counter++)
             {
                 char *passwd_start = NULL;
-                strncpy(options.channels[counter], channel->sval[0], MAX_CHANNELS_NAMELEN);
+                strncpy(options.channels[counter], channel->sval[counter], MAX_CHANNELS_NAMELEN);
                 passwd_start = strchr(options.channels[counter], ':');
 
                 if (passwd_start != NULL)
@@ -260,7 +260,7 @@ int arg_parsesecondary()
                     strncpy(options.channelpasswords[counter], passwd_start++, MAX_PASSWD_LEN);
                     verbose("changing password for channel %s\n", options.channels[counter]);
                 }
-                verbose("setting channel to %s\n", channel->sval[counter]);
+                verbose("setting channel to %s\n", options.channels[counter]);
             }
             debug("number of channels to join: %d\n", options.no_channels);
 		}
