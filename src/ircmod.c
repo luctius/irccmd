@@ -39,11 +39,6 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
                 sprintf(options.botname, "%sX", options.botname);
                 verbose("new nick is %s\n", options.botname);
             }
-            else if (strlen(options.botname) >= (MAX_BOT_NAMELEN) )
-            {
-                debug("nick is too long to add a number; bugging out\n");
-                options.running = false;
-            }
         }
 
         if (options.running)

@@ -237,6 +237,8 @@ int read_config_file(const char *path)
         strncpy(options.botname             , lua_stringexpr(L   , "settings.name"           , options.botname)        , MAX_BOT_NAMELEN);
         strncpy(options.serverpassword      , lua_stringexpr(L   , "settings.serverpassword" , options.serverpassword) , MAX_PASSWD_LEN);
 
+        options.botname[MAX_BOT_NAMELEN -1] = '\0';
+
         for (counter = 0; counter < MAX_CHANNELS; counter++)
         {
             char name_buff[strlen(basestr) + strlen(namestr) +2];

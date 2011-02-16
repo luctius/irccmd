@@ -237,7 +237,8 @@ int arg_parsesecondary()
 	{
         if (options.running)
         {
-            strncpy(options.botname, botname->sval[0], MAX_BOT_NAMELEN);
+            strncpy(options.botname, botname->sval[0], MAX_BOT_NAMELEN -1);
+            options.botname[MAX_BOT_NAMELEN -1] = '\0';
 			verbose("setting name to %s\n", botname->sval[0]);
 		}
 	}
