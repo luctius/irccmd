@@ -27,7 +27,7 @@ void init_readline()
 {
     debug("initializing readline library\n");
 
-    if (isatty(fileno(stdin) ) == false)
+    if (isatty(fileno(stdin) ) == false || (options.mode | input == 0))
     {
         if (options.interactive == true) warning("Turning interactive mode off; stdin is a pipe\n");
         options.interactive = false;

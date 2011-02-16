@@ -113,6 +113,7 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
         {
             char nick[100];
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
+
             if (options.interactive)
             {
                 if (strncmp(params[0], options.channels[options.current_channel_id], strlen(options.channels[options.current_channel_id]) ) == 0)
@@ -136,6 +137,8 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
         }
     }
     fflush(stdout);
+
+    usleep(1); debug("printed out message\n");
 }
 
 /** 
