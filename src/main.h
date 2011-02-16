@@ -8,7 +8,7 @@
 #define MAX_CHANNELS (20)
 #define MAX_CHANNELS_NAMELEN (20)
 #define MAX_SERVER_NAMELEN (20)
-#define MAX_BOT_NAMELEN (8)
+#define MAX_BOT_NAMELEN (9)
 #define MAX_PASSWD_LEN (20)
 
 #define verbose(...) { if (options.verbose) { printf("v- " __VA_ARGS__); (void) fflush(stdout); } }

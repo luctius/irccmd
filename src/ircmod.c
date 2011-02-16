@@ -26,18 +26,22 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
 
         if (options.botname_nr == 0)
         {
-            if (strlen(options.botname) <= (MAX_BOT_NAMELEN -2) )
+            debug("first try in creating a new nick\n");
+            if (strlen(options.botname) < (MAX_BOT_NAMELEN -2) )
             {
+                debug("adding seperator\n");
                 sprintf(options.botname, "%s_", options.botname);
             }
 
-            if (strlen(options.botname) <= (MAX_BOT_NAMELEN -1) )
+            if (strlen(options.botname) < (MAX_BOT_NAMELEN -1) )
             {
+                debug("nick too long for a seperator\n");
                 sprintf(options.botname, "%sX", options.botname);
-                verbose("new nick is %s", options.botname);
+                verbose("new nick is %s\n", options.botname);
             }
             else if (strlen(options.botname) >= (MAX_BOT_NAMELEN) )
             {
+                debug("nick is too long to add a number; bugging out\n");
                 options.running = false;
             }
         }
@@ -46,6 +50,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
         {
             if (options.botname_nr < 0xF)
             {
+                debug("Nick rename try nr %d\n", options.botname_nr);
                 options.botname[strlen(options.botname) -1] = '\0';
                 sprintf(options.botname, "%s%X", options.botname, ++options.botname_nr);
 
