@@ -27,12 +27,11 @@ void init_readline()
 {
     debug("initializing readline library\n");
 
-    if (isatty(fileno(stdin) ) == false || (options.mode | input == 0))
+    if ( (isatty(fileno(stdin) ) == false) || ( (options.mode | input) == 0) )
     {
         if (options.interactive == true) warning("Turning interactive mode off; stdin is a pipe\n");
         options.interactive = false;
     }
-
 
     if (options.interactive)
     {
@@ -88,7 +87,10 @@ void process_input()
             debug("received message %s\n", buff);
             if (options.running)
             {
-                send_irc_message(buff);
+                if (options.connected)
+                {
+                    send_irc_message(buff);
+                }
             }
         }
     }

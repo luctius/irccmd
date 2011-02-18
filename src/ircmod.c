@@ -1,12 +1,16 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/select.h>
+#include <sys/types.h>
+
 #include "ircmod.h"
 #include "configdefaults.h"
 
-irc_session_t *session;
-irc_callbacks_t callbacks;
-bool init_callbacks = false;
+static irc_session_t *session;
+static irc_callbacks_t callbacks;
+static bool init_callbacks = false;
+static time_t last_contact = 0;
 
 void irc_general_event(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count)
 {
@@ -20,7 +24,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
 {
 	debug("irc numeric event: %d: %s\n", event, origin);
 
-    if (event == 433)
+    if (event == 433) /* Nick allready in use */
     {
         error("Nick allready in use\n");
 
@@ -93,7 +97,7 @@ bool join_irc_channel(char *channel, char *password)
     retval = irc_cmd_join(session, channel, password);
     if (retval != 0)
     {
-        error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+        error("join: %d: %s\n", retval, irc_strerror(irc_errno(session) ) );
         return false;
     }
     return true;
@@ -106,45 +110,111 @@ bool part_irc_channel(char *channel)
     retval = irc_cmd_part(session, channel);
     if (retval != 0)
     {
-        error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+        error("part: %d: %s\n", retval, irc_strerror(irc_errno(session) ) );
         return false;
     }
     return true;
 }
 
-int create_irc_session()
+static bool setup_irc_session()
 {
-	int retval = 0;
-
 	debug("setting up irc connection\n");
 	session = irc_create_session(&callbacks);
 
+    if(options.debug) irc_option_set(session, LIBIRC_OPTION_DEBUG);
+    return (session != NULL) ? true : false;
+}
+
+static int connect_irc_session()
+{
+    int retval = 0;
+    options.connected = false;
+    last_contact = time(NULL);
+
 	verbose("connecting to server: %s:%d\n", options.server, options.port);
 	retval = irc_connect(session, options.server, options.port, options.serverpassword, options.botname, PROG_STRING, PROG_STRING);
-	if (retval != 0) error("%d: %s\n", retval, irc_strerror(irc_errno(session) ) );
+	if (retval != 0) 
+    {
+        error("connect: %d: %s\n", retval, irc_strerror(irc_errno(session) ) ); 
+    }
+    else debug("irc session is ready\n");
 
-	debug("irc session is ready\n");
-	return irc_is_connected(session);
+	return (irc_is_connected(session) == 1) ? true : false;
+}
+
+bool create_irc_session()
+{
+    if (setup_irc_session() )
+    {
+        return connect_irc_session();
+    }
+    return false;
+}
+
+static bool irc_received_data(fd_set *readset, int maxfd)
+{
+    if (FD_ISSET(maxfd -1, readset) )
+    {
+        return true;
+    }
+    return false;
 }
 
 int add_irc_descriptors(fd_set *in_set, fd_set *out_set, int *maxfd)
 {
     int retval = 0;
 
-    if ( (retval = irc_add_select_descriptors(session, in_set, out_set, maxfd) ) != 0)
+    if (is_irc_connected() )
     {
-        error("add irc descriptors: %s\n", irc_strerror(irc_errno(session) ) );
+        if ( (retval = irc_add_select_descriptors(session, in_set, out_set, maxfd) ) != 0)
+        {
+            error("add irc descriptors: %s\n", irc_strerror(irc_errno(session) ) );
+        }
     }
     return retval;
 }
 
+bool check_irc_connection(fd_set *in_set, int maxfd)
+{
+    if (irc_received_data(in_set, maxfd) )
+    {
+        last_contact = time(NULL);
+    }
+    else
+    {
+        time_t current_time = time(NULL);
+        time_t timeout = current_time - last_contact;
+
+        if (options.connected)
+        {
+            if (timeout > options.connection_timeout)
+            {
+                error("connection timed-out (%ld seconds)\n", timeout);
+                return create_irc_session();
+            }
+        }
+        else
+        {
+            if (timeout > (options.connection_timeout / 2) )
+            {
+                warning("no connection with the server yet; retrying (%ld seconds)\n", timeout);
+                return create_irc_session();
+            }
+        }
+    }
+    return true;
+}
+
 int process_irc(fd_set *in_set, fd_set *out_set)
 {
-    int retval =0;
+    int retval = 0;
 
-    if ( (retval = irc_process_select_descriptors(session, in_set, out_set) ) != 0)
+    if (is_irc_connected() )
     {
-        error("process irc: %s\n", irc_strerror(irc_errno(session) ) );
+        if ( (retval = irc_process_select_descriptors(session, in_set, out_set) ) != 0)
+        {
+            error("process irc: %s\n", irc_strerror(irc_errno(session) ) );
+        }
     }
 
     return retval;
@@ -156,6 +226,11 @@ int close_irc_session()
 	irc_disconnect(session);
 	irc_destroy_session(session);
 	return 0;
+}
+
+bool is_irc_connected()
+{
+    return (irc_is_connected(session) == 1) ? true : false;
 }
 
 int irc_send_raw_msg(const char *message, const char *channel)

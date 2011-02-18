@@ -44,6 +44,7 @@ struct config_options options =
     .botname_nr       = 0,
 
     .current_channel_id  = 0,
+    .connection_timeout = CONFIG_CONNECTION_TIMEOUT ,
 };
      
 /** 
@@ -163,7 +164,7 @@ static int prog_main()
 
     debug("starting main loop\n");
 
-    if (create_irc_session() != 1)
+    if (create_irc_session() == false)
     {
         error("irc connection setup has failed\n");
         options.running = false;
@@ -174,7 +175,6 @@ static int prog_main()
     while (options.running)
     {
         int result = 0;
-
         tv.tv_sec = 10;
         tv.tv_usec = 0;
 
@@ -183,15 +183,13 @@ static int prog_main()
 
         if ( (options.mode & input) > 0)
         {
-            if (options.connected)
-            {
-                FD_SET(STDIN_FILENO, &readset);
-            }
-            else debug("not setting stdin; waiting for channel join\n");
+            FD_SET(STDIN_FILENO, &readset);
         }
 
         add_irc_descriptors(&readset, &writeset, &maxfd);
         result = select(maxfd +1, &readset, &writeset, NULL, &tv);
+
+        check_irc_connection(&readset, maxfd +1);
 
         if (result == 0)
         {
@@ -203,15 +201,13 @@ static int prog_main()
         else 
         {
             process_irc(&readset, &writeset);
+
             if (FD_ISSET(STDIN_FILENO, &readset) )
             {
                 process_input();
             }
         }
         usleep(10);
-
-        /*counter++;
-        if (counter > 1000) options.running = false;*/
     }
 
     return close_irc_session();
@@ -257,7 +253,7 @@ int main(int argc, char **argv)
     {
         if ( (exitcode = arg_parseprimairy(argc, argv) ) != 0)
         {
-            exitcode = 1;
+            exitcode = 2;
             options.running = false;
             debug("parsing primairies failed\n");
         }

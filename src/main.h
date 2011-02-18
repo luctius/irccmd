@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define MAX_CHANNELS (20)
 #define MAX_CHANNELS_NAMELEN (20)
@@ -59,6 +60,7 @@ struct config_options
 
     int botname_nr;
     int current_channel_id;
+    time_t connection_timeout;
 };
 
 extern struct config_options options;
