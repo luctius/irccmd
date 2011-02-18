@@ -1,3 +1,11 @@
+irccmd (0.0.8) lucid; urgency=low
+
+  * Used commit 210fa264fa53a304cd5a81bd999e3214c2b3c41c as base
+  * Added detection of connetcion loss
+  * Added retry mechanism
+
+ -- Cor Peters <corpeters@incas3.eu>  Fri, 18 Feb 2011 15:07:59 +0200
+
 irccmd (0.0.7) lucid; urgency=low
 
   * Used commit 28f0f01d6ceb1c152da22f59dad4c7106e31385e as base
