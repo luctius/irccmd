@@ -21,11 +21,15 @@ echo '!hudson'" build irccmd ARCH=i386 DIST=lucid " | irccmd --name=buildbot -d 
 wget -q http://hudson.incas3.nl:8080/job/irccmd/ws/hudson-output/irccmd_"$VERSION"_i386.deb
 wget -q http://hudson.incas3.nl:8080/job/irccmd/ws/hudson-output/irccmd_"$VERSION"_i386.changes
 
+echo Press key to continue
+read
+
 echo Uploading packages
 dput -u irccmd_$VERSION_*.changes
-rm irccmd_$VERSION_*.changes
-rm irccmd_$VERSION_*.deb
-rm irccmd_$VERSION_*.dsc
-rm irccmd_$VERSION_*.tar.gz
-rm irccmd_$VERSION_*.upload
+mkdir backup
+mv irccmd_$VERSION_*.changes backup
+mv irccmd_$VERSION_*.deb backup
+mv irccmd_$VERSION_*.dsc backup
+mv irccmd_$VERSION_*.tar.gz backup
+mv irccmd_$VERSION_*.upload  backup
 
