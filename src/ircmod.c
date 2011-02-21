@@ -213,7 +213,7 @@ int process_irc(fd_set *in_set, fd_set *out_set)
     {
         if ( (retval = irc_process_select_descriptors(session, in_set, out_set) ) != 0)
         {
-            error("process irc: %s\n", irc_strerror(irc_errno(session) ) );
+            error("process irc[%d]: %s\n", retval, irc_strerror(irc_errno(session) ) );
         }
     }
 
@@ -237,9 +237,10 @@ int irc_send_raw_msg(const char *message, const char *channel)
 {
 	if (irc_is_connected(session) )
 	{
-		if (irc_cmd_msg(session, channel, message) != 0)
+        int retval = 0;
+		if ( (retval = irc_cmd_msg(session, channel, message) ) != 0)
 		{
-			error("irc message: %s\n", irc_strerror(irc_errno(session) ) );
+			error("irc message[%d]: %s\n", retval, irc_strerror(irc_errno(session) ) );
 		}
 		return 0;
 	}
