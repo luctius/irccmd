@@ -23,6 +23,21 @@ static int get_channel(char *channel);
 static char **irccmd_completion(char *text, int start, int end);
 static bool valid_argument(char *caller, char *arg, bool req_args);
 
+static char* ltrim(char* s) 
+{
+    char* newstart = s;
+
+    debug("old string: |%s|\n", s);
+
+    while (isspace( *newstart) ) ++newstart; /* newstart points to first non-whitespace char (which might be '\0') */
+    memmove(s, newstart, strlen(newstart) + 1); /* don't forget to move the '\0' terminator*/
+    while (isspace(s[strlen(s) -1]) && strlen(s) > 0) s[strlen(s) -1] = '\0'; /* Remove trailing spaces */
+
+    debug("new string: |%s|\n", s);
+
+    return s;
+}
+
 void init_readline()
 {
     debug("initializing readline library\n");
@@ -84,7 +99,6 @@ void process_input()
         }
         else if (result > 0)
         {
-            debug("received message %s\n", buff);
             if (options.running)
             {
                 if (options.connected)
@@ -110,22 +124,6 @@ void change_prompt()
         rl_callback_handler_install(prompt, process_command);
     }
 }
-
-static char* ltrim(char* s) 
-{
-    char* newstart = s;
-
-    debug("old string: |%s|\n", s);
-
-    while (isspace( *newstart) ) ++newstart; /* newstart points to first non-whitespace char (which might be '\0') */
-    memmove(s, newstart, strlen(newstart) + 1); /* don't forget to move the '\0' terminator*/
-    while (isspace(s[strlen(s) -1]) && strlen(s) > 0) s[strlen(s) -1] = '\0'; /* Remove trailing spaces */
-
-    debug("new string: |%s|\n", s);
-
-    return s;
-}
-
 
 static void process_command(char *line)
 {
@@ -203,13 +201,14 @@ static void send_irc_message(char *msg)
 
     if (options.connected == true)
     {
-        debug("send_irc-message\n");
         if (msg != NULL)
         {
+            msg = ltrim(msg);
+
             /* Check if the first non-white-space character is a '#' */
-            channel_start = strchr(msg, '#');
-            if (channel_start != NULL)
+            if (msg[0] == '#')
             {
+                channel_start = strchr(msg, '#');
                 /* Find space after channel; then put a \0 character there and go to the next 
                    character which should be the start of the message */
                 msg_start = strchr(channel_start, ' ');
@@ -223,12 +222,9 @@ static void send_irc_message(char *msg)
 
             if (msg_start != NULL)
             {
-                debug("msg: %s\n", msg_start);
-
                 /* If so, find the channel in the known channels */
                 if (channel_start != NULL)
                 {
-                    debug("channel: %s\n", channel_start);
                     channel_id = get_channel(channel_start);
                 }
 
@@ -237,7 +233,6 @@ static void send_irc_message(char *msg)
                     /* Send the message to the correct channel */
                     memset(channel, 0, sizeof(channel));
                     strncpy(channel, options.channels[channel_id], sizeof(channel) );
-                    debug("sending: %s to channel %s\n", msg_start, channel);
 
                     irc_send_raw_msg(msg_start, channel);
 
@@ -245,7 +240,6 @@ static void send_irc_message(char *msg)
                     {
                         add_history(msg);
                     }
-                    else verbose(".");
                 }
                 error = false;
             }

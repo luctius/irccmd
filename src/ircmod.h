@@ -20,7 +20,7 @@ bool is_irc_connected();
 
 int add_irc_descriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
 int process_irc(fd_set *in_set, fd_set *out_set);
-bool check_irc_connection(fd_set *in_set, int maxfd);
+bool check_irc_connection();
 
 irc_callbacks_t *get_callback();
 int irc_send_raw_msg(const char *message, const char *channel);

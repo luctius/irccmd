@@ -41,7 +41,7 @@ struct config_options options =
     .channelpasswords = {CONFIG_CHANNELPASSWORD}, /**< this will hold the password neccesary to join the channel; this can be empty */ 
     .no_channels      = 1,                        /**< this will hold the number of channels the bot would like to join */
     .botname          = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */ 
-    .botname_nr       = 0,
+    .botname_nr       = -1,
 
     .current_channel_id  = 0,
     .connection_timeout = CONFIG_CONNECTION_TIMEOUT ,
@@ -150,6 +150,9 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
 static int prog_main()
 {
     int maxfd = STDIN_FILENO;
+    time_t last_ping = 0;
+    time_t now = 0;
+    time_t timeout = (options.connection_timeout / 10);
     fd_set readset;
     fd_set writeset;
     struct timeval tv;
@@ -158,9 +161,6 @@ static int prog_main()
     callbacks->event_connect = irc_server_connect;
     callbacks->event_channel = irc_channel_callback;
 	callbacks->event_join    = irc_mode_callback;
-
-    tv.tv_sec = 20;
-    tv.tv_usec = 0;
 
     debug("starting main loop\n");
 
@@ -175,7 +175,7 @@ static int prog_main()
     while (options.running)
     {
         int result = 0;
-        tv.tv_sec = 10;
+        tv.tv_sec = timeout;
         tv.tv_usec = 0;
 
         FD_ZERO(&readset);
@@ -188,8 +188,6 @@ static int prog_main()
 
         add_irc_descriptors(&readset, &writeset, &maxfd);
         result = select(maxfd +1, &readset, &writeset, NULL, &tv);
-
-        check_irc_connection(&readset, maxfd +1);
 
         if (result == 0)
         {
@@ -207,7 +205,13 @@ static int prog_main()
                 process_input();
             }
         }
-        usleep(10);
+
+        now = time(NULL);
+        if ( (now - last_ping) > timeout)
+        {
+            last_ping = now;
+            check_irc_connection();
+        }
     }
 
     return close_irc_session();

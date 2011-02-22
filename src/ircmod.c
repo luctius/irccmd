@@ -14,10 +14,15 @@ static time_t last_contact = 0;
 
 void irc_general_event(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count)
 {
-    if (count == 0) debug("irc general event: %s: %s\n", event, origin);
-    if (count == 1) debug("irc general event: %s: %s: %s\n", event, origin, params[0]);
-    if (count == 2) debug("irc general event: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
-    if (count >= 3) debug("irc general event: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
+    if (count == 0) debug("irc general event[0]: %s: %s\n", event, origin);
+    if (count == 1) debug("irc general event[1]: %s: %s: %s\n", event, origin, params[0]);
+    if (count == 2) debug("irc general event[2]: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
+    if (count >= 3) debug("irc general event[3]: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
+
+    if (strstr(event, "PONG") == event)
+    {
+        last_contact = time(NULL);
+    }
 }
 
 void irc_general_event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count)
@@ -28,9 +33,16 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
     {
         error("Nick allready in use\n");
 
-        if (options.botname_nr == 0)
+        if (options.botname_nr == -1)
         {
+            options.botname_nr = 0;
             debug("first try in creating a new nick\n");
+            if (strlen(options.botname) >= (MAX_BOT_NAMELEN -1) )
+            {
+                options.botname[MAX_BOT_NAMELEN -1] = '\0';
+                verbose("shortened nick to %s\n", options.botname);
+            }
+
             if (strlen(options.botname) < (MAX_BOT_NAMELEN -2) )
             {
                 debug("adding seperator\n");
@@ -174,32 +186,29 @@ int add_irc_descriptors(fd_set *in_set, fd_set *out_set, int *maxfd)
     return retval;
 }
 
-bool check_irc_connection(fd_set *in_set, int maxfd)
+bool check_irc_connection()
 {
-    if (irc_received_data(in_set, maxfd) )
+    time_t current_time = time(NULL);
+    time_t timeout = current_time - last_contact;
+    irc_send_raw(session, "PING %s\n", options.channels[0]);
+
+    if (options.connected)
     {
-        last_contact = time(NULL);
+        if (timeout > (options.connection_timeout / 5) ) debug("timeout [%ld]\n", timeout);
+        if (timeout > options.connection_timeout)
+        {
+            error("connection timed-out (%ld seconds)\n", timeout);
+            options.botname_nr = 0;
+            return create_irc_session();
+        }
     }
     else
     {
-        time_t current_time = time(NULL);
-        time_t timeout = current_time - last_contact;
-
-        if (options.connected)
+        if (timeout > (options.connection_timeout) )
         {
-            if (timeout > options.connection_timeout)
-            {
-                error("connection timed-out (%ld seconds)\n", timeout);
-                return create_irc_session();
-            }
-        }
-        else
-        {
-            if (timeout > (options.connection_timeout / 2) )
-            {
-                warning("no connection with the server yet; retrying (%ld seconds)\n", timeout);
-                return create_irc_session();
-            }
+            warning("no connection with the server yet; retrying (%ld seconds)\n", timeout);
+            options.botname_nr = 0;
+            return create_irc_session();
         }
     }
     return true;

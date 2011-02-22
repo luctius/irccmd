@@ -27,6 +27,6 @@
 #define CONFIG_SERVERPASSWORD ""
 #define CONFIG_CHANNELPASSWORD ""
 
-#define CONFIG_CONNECTION_TIMEOUT  (240)
+#define CONFIG_CONNECTION_TIMEOUT  (200)
 
 #endif /* configdefaults_h_ */

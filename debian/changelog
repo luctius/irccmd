@@ -1,3 +1,16 @@
+irccmd (0.0.8-2) lucid; urgency=low
+
+  * Test Version
+  * Fixed timeout mechanism
+ 
+ -- Cor Peters <corpeters@incas3.eu>  Tue, 22 Feb 2011 14:20:59 +0200
+
+irccmd (0.0.8-1) lucid; urgency=low
+
+  * Debug version
+
+ -- Cor Peters <corpeters@incas3.eu>  Mon, 21 Feb 2011 09:50:59 +0200
+
 irccmd (0.0.8) lucid; urgency=low
 
   * Used commit 210fa264fa53a304cd5a81bd999e3214c2b3c41c as base
