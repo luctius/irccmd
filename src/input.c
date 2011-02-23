@@ -85,7 +85,7 @@ void process_input()
     {
         rl_callback_read_char();
     }
-    else
+    else if (options.connected)
     {
         int result = 0;
         char buff[300];
@@ -95,16 +95,20 @@ void process_input()
 
         if (result == 0)
         {
-            debug("stdin reset");
+            /*
+                Writing end of the pipe is closed.
+                Since it will not be opened again we will stop running.
+
+                This also avoids having to deal with an unending stream of EOF
+                characters.
+             */
+            options.running = false;
         }
         else if (result > 0)
         {
             if (options.running)
             {
-                if (options.connected)
-                {
-                    send_irc_message(buff);
-                }
+                send_irc_message(buff);
             }
         }
     }

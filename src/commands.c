@@ -22,6 +22,7 @@ static bool com_leave(char *arg);
 struct commands commands[] = {
      { "/help"      , com_help     , "displays this help"                  , false } , 
      { "/exit"      , com_exit     , "quits the application"               , false } , 
+     { "/quit"      , com_exit     , "quits the application"               , false } , 
      { "/join"      , com_join     , "joins a given channel"               , true  } , 
      { "/list"      , com_list     , "lists all joined channels"           , false } , 
      { "/channel"   , com_channel  , "switch to channel"                   , true  } , 

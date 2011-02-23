@@ -244,7 +244,7 @@ bool is_irc_connected()
 
 int irc_send_raw_msg(const char *message, const char *channel)
 {
-	if (irc_is_connected(session) )
+	if (is_irc_connected() && options.connected)
 	{
         int retval = 0;
 		if ( (retval = irc_cmd_msg(session, channel, message) ) != 0)

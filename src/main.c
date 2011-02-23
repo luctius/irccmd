@@ -193,9 +193,9 @@ static int prog_main()
         error("irc connection setup has failed\n");
         options.running = false;
     }
+    else usleep(100);
 
     debug("starting loop\n");
-
     while (options.running)
     {
         int result = 0;
