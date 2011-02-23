@@ -32,6 +32,7 @@ struct config_options options =
     .interactive      = true,
     .showchannel      = CONFIG_SHOWCHANNEL,       /**< This will enable showing of the channel in the irc output */ 
     .shownick         = CONFIG_SHOWNICK,          /**< This will enable showing of the nickname in the irc output */ 
+    .showjoins        = CONFIG_SHOWJOINS,         
 
     .mode             = CONFIG_MODE,              /**< this will define the mode of the application */ 
     .port             = CONFIG_PORT,              /**< this will hold the port which should be used to connect to the irc server */ 
@@ -42,6 +43,7 @@ struct config_options options =
     .no_channels      = 1,                        /**< this will hold the number of channels the bot would like to join */
     .botname          = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */ 
     .botname_nr       = -1,
+    .maxlines         = CONFIG_MAXLINES,
 
     .current_channel_id  = 0,
     .connection_timeout = CONFIG_CONNECTION_TIMEOUT ,
@@ -93,7 +95,20 @@ static void irc_server_connect(irc_session_t *session, const char *event, const 
 static void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     options.connected = true;
-    verbose("joined channel %s\n", params[0]);
+    if (count == 0) debug("irc channel event[0]: %s: %s\n", event, origin);
+    if (count == 1) debug("irc channel event[1]: %s: %s: %s\n", event, origin, params[0]);
+    if (count == 2) debug("irc channel event[2]: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
+    if (count >= 3) debug("irc channel event[3]: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
+
+    if (options.showjoins)
+    {
+        if (strstr(event, "JOIN") == event)
+        {
+            char nick[100];
+            irc_target_get_nick(origin, nick, sizeof(nick) -1);
+            printf("%s has joined %s\n", nick, params[0]);
+        }
+    }
 }
 
 /** 
@@ -135,6 +150,15 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
                 printf("%s: %s\n", nick, params[1]);
             }
             else printf("%s\n", params[1]);
+
+            if (options.maxlines > 0)
+            {
+                options.maxlines--;
+                if (options.maxlines <= 0)
+                {
+                    options.running = false;
+                }
+            }
         }
     }
     fflush(stdout);

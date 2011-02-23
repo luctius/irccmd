@@ -18,6 +18,7 @@
 
 #define CONFIG_SHOWCHANNEL  false
 #define CONFIG_SHOWNICK     false
+#define CONFIG_SHOWJOINS    false
 
 #define CONFIG_MODE     both
 #define CONFIG_PORT     6667
@@ -27,6 +28,8 @@
 #define CONFIG_SERVERPASSWORD ""
 #define CONFIG_CHANNELPASSWORD ""
 
-#define CONFIG_CONNECTION_TIMEOUT  (200)
+#define CONFIG_MAXLINES  0
+
+#define CONFIG_CONNECTION_TIMEOUT 200
 
 #endif /* configdefaults_h_ */

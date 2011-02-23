@@ -49,6 +49,8 @@ struct config_options
 
     bool showchannel;
     bool shownick;
+    bool showjoins;
+    int maxlines;
 
     int port;
     int no_channels;

@@ -232,6 +232,7 @@ int read_config_file(const char *path)
         options.interactive                 = lua_boolexpr(L     , "settings.interactive"    , options.interactive);
         options.showchannel                 = lua_boolexpr(L     , "settings.showchannel"    , options.showchannel);
         options.shownick                    = lua_boolexpr(L     , "settings.shownick"       , options.shownick);
+        options.showjoins                   = lua_boolexpr(L     , "settings.showjoins"      , options.showjoins);
         (void) lua_intexpr(L                                     , "settings.port"           , &options.port);
         strncpy(options.server              , lua_stringexpr(L   , "settings.server"         , options.server)         , MAX_SERVER_NAMELEN);
         strncpy(options.botname             , lua_stringexpr(L   , "settings.name"           , options.botname)        , MAX_BOT_NAMELEN);

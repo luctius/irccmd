@@ -13,6 +13,9 @@ struct arg_str  *serverpassword;
 struct arg_lit  *noninteractive;
 struct arg_lit  *showchannel;
 struct arg_lit  *shownick;
+struct arg_lit  *showjoins;
+struct arg_int  *lines;
+struct arg_int  *timeout;
 struct arg_rem  *remark1;
 
 struct arg_lit  *silent;
@@ -50,6 +53,7 @@ int arg_parseprimairy(int argc, char **argv)
     noninteractive  = arg_lit0(NULL , "noninteractive"                                 , "will force a non-interactive session");
     showchannel     = arg_lit0(NULL , "showchannel"                                    , "show channel when printing irc messages to stdout");
     shownick        = arg_lit0(NULL , "shownick"                                       , "show nick from sender when printing irc messages to stdout");
+    showjoins       = arg_lit0(NULL , "showjoins"                                      , "show joins from the connected channels");
     config          = arg_file0("c" , "config"          , CONFIG_FILE                  , "override default config file");
     server          = arg_str0(NULL , "server"          , CONFIG_SERVER                , "set the irc server");
     channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL ":<password>" , 0, MAX_CHANNELS, 
@@ -58,6 +62,9 @@ int arg_parseprimairy(int argc, char **argv)
                                                                                         "password can be supplied using a column (:) as seperator.");
     botname         = arg_str0(NULL , "name"            , CONFIG_BOTNAME               , "set the botname");
     serverpassword  = arg_str0(NULL , "serverpassword"  , "<password>"                 , "set the password for the server");
+    timeout         = arg_int0(NULL , "timeout"         , XSTR(CONFIG_CONNECTION_TIMEOUT), "set the maximum timeout of the irc connection");
+    lines           = arg_int0(NULL , "lines"           , "0"                          , "quit when the number of messages has exceeded <lines>. "
+                                                                                         "Off when set to zero.");
     end             = arg_end(20);
 
 
@@ -76,10 +83,13 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = noninteractive;
         argtable[i++] = showchannel;
         argtable[i++] = shownick;
+        argtable[i++] = showjoins;
         argtable[i++] = server;
         argtable[i++] = botname;
         argtable[i++] = serverpassword;
         argtable[i++] = channel;
+        argtable[i++] = timeout;
+        argtable[i++] = lines;
 
         argtable[i++] = end;
     }
@@ -177,6 +187,31 @@ int arg_parseprimairy(int argc, char **argv)
 int arg_parsesecondary()
 {
 	int	exitcode = 0;
+
+    if (silent->count > 0)
+    {
+        if (options.running)
+        {
+            options.silent  = true;
+        }
+    }
+
+    if (verbose->count > 0)
+    {
+        if (options.running)
+        {
+            options.verbose = true;
+        }
+    }
+    
+    if (debug->count > 0)
+    {
+        if (options.running)
+        {
+            options.debug   = true;
+            options.verbose = true;
+        }
+    }
 
     if (mode->count > 0)
     {
@@ -285,6 +320,15 @@ int arg_parsesecondary()
         }
     }
 
+    if (showjoins->count > 0)
+    {
+        if (options.running)
+        {
+            options.showjoins = true;
+			verbose("joins will now be printed\n");
+        }
+    }
+
     if (noninteractive->count > 0)
     {
         if (options.running)
@@ -294,6 +338,24 @@ int arg_parsesecondary()
         }
     }
 
+	if (timeout->count > 0)
+	{
+        if (options.running)
+        {
+			options.connection_timeout = timeout->ival[0];
+			verbose("setting timeout to %d\n", timeout->ival[0]);
+		}
+	}
+
+	if (lines->count > 0)
+	{
+        if (options.running)
+        {
+			options.maxlines = lines->ival[0];
+			verbose("setting lines to %d\n", lines->ival[0]);
+		}
+	}
+	
     arg_clean();
 
     return exitcode;
