@@ -1,3 +1,11 @@
+irccmd (0.0.9-2) lucid; urgency=low
+
+  * Fixed an bug where irccmd would use a lot of cpu when the writing part of the stdin pipe was closed.
+    This is due to weird behavious of select which sees an pipe as having data when the writing end is closed.
+  * Added /quit alias for /exit
+ 
+ -- Cor Peters <corpeters@incas3.eu>  Wed, 23 Feb 2011 15:33:59 +0200
+
 irccmd (0.0.9-1) lucid; urgency=low
 
   * Fixed timeout mechanism
