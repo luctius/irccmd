@@ -96,13 +96,19 @@ void process_input()
         if (result == 0)
         {
             /*
-                Writing end of the pipe is closed.
-                Since it will not be opened again we will stop running.
-
-                This also avoids having to deal with an unending stream of EOF
-                characters.
+               The writing end has closed.
+               We either switch to output only
+               or stop the application.
              */
-            options.running = false;
+            if (options.keepreading)
+            {
+                options.mode = output;
+            }
+            else
+            {
+                options.running = false;
+            }
+            
         }
         else if (result > 0)
         {

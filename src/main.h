@@ -46,6 +46,7 @@ struct config_options
     bool silent;
 
     bool interactive;    
+    bool keepreading;    
 
     bool showchannel;
     bool shownick;

@@ -31,7 +31,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
 
     if (event == 433) /* Nick allready in use */
     {
-        error("Nick allready in use\n");
+        warning("Nick allready in use\n");
 
         if (options.botname_nr == -1)
         {
@@ -222,7 +222,8 @@ int process_irc(fd_set *in_set, fd_set *out_set)
     {
         if ( (retval = irc_process_select_descriptors(session, in_set, out_set) ) != 0)
         {
-            error("process irc[%d]: %s\n", retval, irc_strerror(irc_errno(session) ) );
+            int err = irc_errno(session);
+            if (err != 0) error("process irc[%d]: %s\n", retval, irc_strerror(err ) );
         }
     }
 

@@ -29,6 +29,7 @@ struct config_options options =
     .verbose          = CONFIG_VERBOSE,           /**< if this is set, messages which would not be interresting to normal users can be shown */ 
     .configfile       = CONFIG_FILE,              /**< This will define where to look for the config file */ 
 
+    .keepreading      = CONFIG_KEEPREADING,
     .interactive      = true,
     .showchannel      = CONFIG_SHOWCHANNEL,       /**< This will enable showing of the channel in the irc output */ 
     .shownick         = CONFIG_SHOWNICK,          /**< This will enable showing of the nickname in the irc output */ 

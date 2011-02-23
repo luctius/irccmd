@@ -20,6 +20,8 @@
 #define CONFIG_SHOWNICK     false
 #define CONFIG_SHOWJOINS    false
 
+#define CONFIG_KEEPREADING  false
+
 #define CONFIG_MODE     both
 #define CONFIG_PORT     6667
 #define CONFIG_SERVER   "irc.incas3.nl"

@@ -11,6 +11,7 @@ struct arg_str  *channel;
 struct arg_str  *botname;
 struct arg_str  *serverpassword;
 struct arg_lit  *noninteractive;
+struct arg_lit  *keepreading;
 struct arg_lit  *showchannel;
 struct arg_lit  *shownick;
 struct arg_lit  *showjoins;
@@ -49,8 +50,10 @@ int arg_parseprimairy(int argc, char **argv)
 
 
     mode            = arg_str0("m"  , "mode"            , "in/out/both"                , "set the mode, input, output or both");
-    port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
     noninteractive  = arg_lit0(NULL , "noninteractive"                                 , "will force a non-interactive session");
+    keepreading     = arg_lit0(NULL , "keepreading"                                    , "will stay in the channel after "
+                                                                                         "the writing end of stdin has closed.");
+    port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
     showchannel     = arg_lit0(NULL , "showchannel"                                    , "show channel when printing irc messages to stdout");
     shownick        = arg_lit0(NULL , "shownick"                                       , "show nick from sender when printing irc messages to stdout");
     showjoins       = arg_lit0(NULL , "showjoins"                                      , "show joins from the connected channels");
@@ -79,8 +82,9 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = remark1;
 
         argtable[i++] = mode;
-        argtable[i++] = port;
         argtable[i++] = noninteractive;
+        argtable[i++] = keepreading;
+        argtable[i++] = port;
         argtable[i++] = showchannel;
         argtable[i++] = shownick;
         argtable[i++] = showjoins;
@@ -334,6 +338,15 @@ int arg_parsesecondary()
         if (options.running)
         {
             options.interactive = false;
+            verbose("interactive mode off\n");
+        }
+    }
+
+    if (keepreading->count > 0)
+    {
+        if (options.running)
+        {
+            options.keepreading = true;
             verbose("interactive mode off\n");
         }
     }
