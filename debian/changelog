@@ -1,4 +1,4 @@
-irccmd (0.0.9-3) lucid; urgency=low
+irccmd (0.0.9-4) lucid; urgency=low
 
   * Upped the possible number of arguments to fix a bug where the first argument would not be recognised.
   * Added a optimalisation in channel callback routine.
