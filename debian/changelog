@@ -1,5 +1,12 @@
 irccmd (0.0.9-3) lucid; urgency=low
 
+  * Upped the possible number of arguments to fix a bug where the first argument would not be recognised.
+  * Added a optimalisation in channel callback routine.
+ 
+ -- Cor Peters <corpeters@incas3.eu>  Thu, 24 Feb 2011 08:56:59 +0200
+
+irccmd (0.0.9-3) lucid; urgency=low
+
   * Added the keepreading argument. Which is meant to keep in reading after the writing end of stdin has closed.
  
  -- Cor Peters <corpeters@incas3.eu>  Wed, 23 Feb 2011 15:47:59 +0200

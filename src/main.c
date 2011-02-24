@@ -124,6 +124,7 @@ static void irc_mode_callback(irc_session_t *session, const char *event, const c
 */
 static void irc_channel_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
+    bool send = false;
     if ( (options.mode & output) > 0)
     {
         if (count >= 2)
@@ -131,28 +132,34 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
             char nick[100];
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
 
-            if (options.interactive)
+            if (strncmp(params[0], options.channels[options.current_channel_id], strlen(options.channels[options.current_channel_id]) ) == 0
+                && options.interactive)
             {
-                if (strncmp(params[0], options.channels[options.current_channel_id], strlen(options.channels[options.current_channel_id]) ) == 0)
-                {
-                    printf("%s@%s: %s\n", nick, params[0], params[1]);
-                }
+                printf("%s@%s: %s\n", nick, params[0], params[1]);
+                send = true;
             }
             else if (options.showchannel && options.shownick)
             {
                 printf("%s - %s: %s\n", params[0], nick, params[1]);
+                send = true;
             }
             else if (options.showchannel)
             {
                 printf("%s - %s\n", params[0], params[1]);
+                send = true;
             }
             else if (options.shownick)
             {
                 printf("%s: %s\n", nick, params[1]);
+                send = true;
             }
-            else printf("%s\n", params[1]);
+            else
+            {
+                printf("%s\n", params[1]);
+                send = true;
+            }
 
-            if (options.maxlines > 0)
+            if (send && options.maxlines > 0)
             {
                 options.maxlines--;
                 if (options.maxlines <= 0)
@@ -164,7 +171,7 @@ static void irc_channel_callback(irc_session_t *session, const char *event, cons
     }
     fflush(stdout);
 
-    usleep(1); debug("printed out message\n");
+    if (send) { usleep(1); debug("printed out message\n"); }
 }
 
 /** 

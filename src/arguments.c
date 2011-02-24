@@ -25,7 +25,7 @@ struct arg_lit  *debug;
 struct arg_lit  *help;
 struct arg_lit  *version;
 struct arg_end  *end;
-void *argtable[20];
+void *argtable[40];
 
 /** 
 * Frees the argtable memory allocations.
@@ -68,7 +68,7 @@ int arg_parseprimairy(int argc, char **argv)
     timeout         = arg_int0(NULL , "timeout"         , XSTR(CONFIG_CONNECTION_TIMEOUT), "set the maximum timeout of the irc connection");
     lines           = arg_int0(NULL , "lines"           , "0"                          , "quit when the number of messages has exceeded <lines>. "
                                                                                          "Off when set to zero.");
-    end             = arg_end(20);
+    end             = arg_end(40);
 
 
     {
