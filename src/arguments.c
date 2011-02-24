@@ -41,59 +41,59 @@ int arg_parseprimairy(int argc, char **argv)
     int exitcode = 0;
     int nerrors = 0;
 
-    help            = arg_lit0(NULL , "help"            , "print this help and exit");
-    version         = arg_lit0(NULL , "version"         , "print version information and exit");
+    help            = arg_lit0("h"  , "help"            , "print this help and exit");
     verbose         = arg_lit0("v"  , "verbose"         , "verbose messaging");
     debug           = arg_lit0("d"  , "debug"           , "enables debug messages, implies -v");
     silent          = arg_lit0("s"  , "silent"          , "program will only output errors");
+    config          = arg_file0("c" , "config"          , CONFIG_FILE                  , "override default config file");
+    version         = arg_lit0(NULL , "version"         , "print version information and exit");
     remark1         = arg_rem("", "");
 
 
     mode            = arg_str0("m"  , "mode"            , "in/out/both"                , "set the mode, input, output or both");
+    port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
+    botname         = arg_str0("n"  , "name"            , CONFIG_BOTNAME               , "set the botname");
+    timeout         = arg_int0("t"  , "timeout"         , XSTR(CONFIG_CONNECTION_TIMEOUT), "set the maximum timeout of the irc connection");
+    lines           = arg_int0("l"  , "lines"           , "0"                          , "quit when the number of messages has exceeded <lines>. "
+                                                                                         "Off when set to zero.");
     noninteractive  = arg_lit0(NULL , "noninteractive"                                 , "will force a non-interactive session");
     keepreading     = arg_lit0(NULL , "keepreading"                                    , "will stay in the channel after "
                                                                                          "the writing end of stdin has closed.");
-    port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
     showchannel     = arg_lit0(NULL , "showchannel"                                    , "show channel when printing irc messages to stdout");
     shownick        = arg_lit0(NULL , "shownick"                                       , "show nick from sender when printing irc messages to stdout");
     showjoins       = arg_lit0(NULL , "showjoins"                                      , "show joins from the connected channels");
-    config          = arg_file0("c" , "config"          , CONFIG_FILE                  , "override default config file");
     server          = arg_str0(NULL , "server"          , CONFIG_SERVER                , "set the irc server");
+    serverpassword  = arg_str0(NULL , "serverpassword"  , "<password>"                 , "set the password for the server");
     channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL ":<password>" , 0, MAX_CHANNELS, 
                                                                                         "set an irc channel, can be applied multiple "
                                                                                         "times, each for a new channel. An optional "
                                                                                         "password can be supplied using a column (:) as seperator.");
-    botname         = arg_str0(NULL , "name"            , CONFIG_BOTNAME               , "set the botname");
-    serverpassword  = arg_str0(NULL , "serverpassword"  , "<password>"                 , "set the password for the server");
-    timeout         = arg_int0(NULL , "timeout"         , XSTR(CONFIG_CONNECTION_TIMEOUT), "set the maximum timeout of the irc connection");
-    lines           = arg_int0(NULL , "lines"           , "0"                          , "quit when the number of messages has exceeded <lines>. "
-                                                                                         "Off when set to zero.");
     end             = arg_end(40);
 
 
     {
         int i = 0;
         argtable[i++] = help;
-        argtable[i++] = version;
         argtable[i++] = verbose;
         argtable[i++] = debug;
         argtable[i++] = silent;
         argtable[i++] = config;
+        argtable[i++] = version;
         argtable[i++] = remark1;
 
         argtable[i++] = mode;
+        argtable[i++] = port;
+        argtable[i++] = botname;
+        argtable[i++] = timeout;
+        argtable[i++] = lines;
         argtable[i++] = noninteractive;
         argtable[i++] = keepreading;
-        argtable[i++] = port;
         argtable[i++] = showchannel;
         argtable[i++] = shownick;
         argtable[i++] = showjoins;
         argtable[i++] = server;
-        argtable[i++] = botname;
         argtable[i++] = serverpassword;
         argtable[i++] = channel;
-        argtable[i++] = timeout;
-        argtable[i++] = lines;
 
         argtable[i++] = end;
     }
