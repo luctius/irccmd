@@ -108,6 +108,7 @@ static void irc_mode_callback(irc_session_t *session, const char *event, const c
             char nick[100];
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
             printf("%s has joined %s\n", nick, params[0]);
+            fflush(stdout);
         }
     }
 }
