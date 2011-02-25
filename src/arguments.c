@@ -46,7 +46,7 @@ int arg_parseprimairy(int argc, char **argv)
     debug           = arg_lit0("d"  , "debug"           , "enables debug messages, implies -v");
     silent          = arg_lit0("s"  , "silent"          , "program will only output errors");
     config          = arg_file0("c" , "config"          , CONFIG_FILE                  , "override default config file");
-    version         = arg_lit0(NULL , "version"         , "print version information and exit");
+    version         = arg_lit0("V"  , "version"         , "print version information and exit");
     remark1         = arg_rem("", "");
 
 
@@ -56,15 +56,15 @@ int arg_parseprimairy(int argc, char **argv)
     timeout         = arg_int0("t"  , "timeout"         , XSTR(CONFIG_CONNECTION_TIMEOUT), "set the maximum timeout of the irc connection");
     lines           = arg_int0("l"  , "lines"           , "0"                          , "quit when the number of messages has exceeded <lines>. "
                                                                                          "Off when set to zero.");
-    noninteractive  = arg_lit0(NULL , "noninteractive"                                 , "will force a non-interactive session");
-    keepreading     = arg_lit0(NULL , "keepreading"                                    , "will stay in the channel after "
+    noninteractive  = arg_lit0("N"  , "noninteractive"                                 , "will force a non-interactive session");
+    keepreading     = arg_lit0("K"  , "keepreading"                                    , "will stay in the channel after "
                                                                                          "the writing end of stdin has closed.");
-    showchannel     = arg_lit0(NULL , "showchannel"                                    , "show channel when printing irc messages to stdout");
-    shownick        = arg_lit0(NULL , "shownick"                                       , "show nick from sender when printing irc messages to stdout");
-    showjoins       = arg_lit0(NULL , "showjoins"                                      , "show joins from the connected channels");
-    server          = arg_str0(NULL , "server"          , CONFIG_SERVER                , "set the irc server");
-    serverpassword  = arg_str0(NULL , "serverpassword"  , "<password>"                 , "set the password for the server");
-    channel         = arg_strn(NULL , "channel"         , CONFIG_CHANNEL ":<password>" , 0, MAX_CHANNELS, 
+    showchannel     = arg_lit0("H"  , "showchannel"                                    , "show channel when printing irc messages to stdout");
+    shownick        = arg_lit0("N"  , "shownick"                                       , "show nick from sender when printing irc messages to stdout");
+    showjoins       = arg_lit0("J"  , "showjoins"                                      , "show joins from the connected channels");
+    server          = arg_str0("S"  , "server"          , CONFIG_SERVER                , "set the irc server");
+    serverpassword  = arg_str0("P"  , "serverpassword"  , "<password>"                 , "set the password for the server");
+    channel         = arg_strn("C"  , "channel"         , CONFIG_CHANNEL ":<password>" , 0, MAX_CHANNELS, 
                                                                                         "set an irc channel, can be applied multiple "
                                                                                         "times, each for a new channel. An optional "
                                                                                         "password can be supplied using a column (:) as seperator.");
