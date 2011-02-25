@@ -332,16 +332,6 @@ static bool valid_argument(char *caller, char *arg, bool req_args)
     return true;
 }
 
-char *duplicate_string (char* s)
-{
-    char *r;
-
-    r = malloc(strlen(s) + 1);
-    strcpy(r, s);
-    return r;
-}
-
-
 static char *command_generator(const char *text, int state)
 {
     char *match = NULL;
@@ -350,7 +340,7 @@ static char *command_generator(const char *text, int state)
 
     while ( (match = commands[completion_index++].name) )
     {
-        if (strncmp(match, text, len) == 0) return duplicate_string(match);
+        if (strncmp(match, text, len) == 0) return strdup(match);
     }
 
     return NULL;
@@ -365,7 +355,7 @@ static char *channel_generator(const char *text, int state)
     while (completion_index < MAX_CHANNELS)
     {
         match = options.channels[completion_index++];
-        if (strncmp(match, text, len) == 0) return duplicate_string(match);
+        if (strncmp(match, text, len) == 0) return strdup(match);
     }
 
     return NULL;

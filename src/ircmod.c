@@ -29,7 +29,7 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
 {
 	debug("irc numeric event: %d: %s\n", event, origin);
 
-    if (event == 433) /* Nick allready in use */
+    if (event == LIBIRC_RFC_ERR_NICKNAMEINUSE) /* Nick allready in use */
     {
         warning("Nick allready in use\n");
 
@@ -159,15 +159,6 @@ bool create_irc_session()
     if (setup_irc_session() )
     {
         return connect_irc_session();
-    }
-    return false;
-}
-
-static bool irc_received_data(fd_set *readset, int maxfd)
-{
-    if (FD_ISSET(maxfd -1, readset) )
-    {
-        return true;
     }
     return false;
 }
