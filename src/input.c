@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -89,9 +90,9 @@ void process_input()
     else if (options.connected)
     {
         int result = 0;
-        char buff[300];
+        char buff[9000];
 
-        memset(buff, 0, sizeof(buff) );
+        //memset(buff, 0, sizeof(buff) );
         result = sgets(STDIN_FILENO, buff, sizeof(buff) );
 
         if (result == 0)
