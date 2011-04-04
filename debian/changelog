@@ -1,3 +1,10 @@
+irccmd (0.0.9-5) maverick; urgency=low
+
+  * Fixed interactive input
+  * Fixed auto login
+
+ -- Cor Peters <cor@cor.incas3.local>  Mon, 04 Apr 2011 09:28:51 +0200
+
 irccmd (0.0.9-4) lucid; urgency=low
 
   * Upped the possible number of arguments to fix a bug where the first argument would not be recognised.
