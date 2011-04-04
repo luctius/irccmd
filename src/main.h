@@ -12,11 +12,13 @@
 #define MAX_BOT_NAMELEN (9)
 #define MAX_PASSWD_LEN (20)
 
-#define verbose(...) { if (options.verbose) { printf("v[%lu]- ", time(NULL) ); printf(__VA_ARGS__); (void) fflush(stdout); } }
-#define debug(...) { if (options.debug) { printf("d[%lu]- ", time(NULL) ); printf(__VA_ARGS__); (void) fflush(stdout); } }
+#define OUTPUT_TIME_DIV 10000
+
+#define verbose(...) { if (options.verbose) { printf("v[%lu]- ", (time(NULL) % OUTPUT_TIME_DIV) ); printf(__VA_ARGS__); (void) fflush(stdout); } }
+#define debug(...) { if (options.debug) { printf("d[%lu]- ", (time(NULL) % OUTPUT_TIME_DIV) ); printf(__VA_ARGS__); (void) fflush(stdout); } }
 #define nsilent(...) { if (options.silent == false) { printf(__VA_ARGS__); (void) fflush(stdout); } }
-#define error(...) { fprintf(stderr, "e[%lu]- ", time(NULL) ); fprintf(stderr, "" __VA_ARGS__); (void) fflush(stderr); }
-#define warning(...) { if (options.silent == false) { fprintf(stderr, "w[%lu]- ", time(NULL) ); fprintf(stderr,__VA_ARGS__); (void) fflush(stderr); } }
+#define error(...) { fprintf(stderr, "e[%lu]- ", (time(NULL) % OUTPUT_TIME_DIV) ); fprintf(stderr, "" __VA_ARGS__); (void) fflush(stderr); }
+#define warning(...) { if (options.silent == false) { fprintf(stderr, "w[%lu]- ", (time(NULL) % OUTPUT_TIME_DIV) ); fprintf(stderr,__VA_ARGS__); (void) fflush(stderr); } }
 
 
 /** 

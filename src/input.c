@@ -67,7 +67,7 @@ void init_readline()
         verbose("interactive mode: turning on showchannel and shownick");
         options.showchannel = true;
         options.shownick = true;
-        options.mode = output;
+        options.mode = both;
     }
 }
 

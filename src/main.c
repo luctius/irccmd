@@ -74,8 +74,9 @@ static void irc_server_connect(irc_session_t *session, const char *event, const 
 {
     int counter = 0;
 
-    irc_send_raw_msg("login bot bone", "userserv");
-    verbose("connected to server\n");
+    //irc_send_raw_msg("login bot bone", "userserv");
+    irc_cmd_msg(session, "userserv", "login bot bone");
+    verbose("sending login info\n");
 
     for (counter = 0; counter < options.no_channels; counter++)
     {
@@ -96,20 +97,22 @@ static void irc_server_connect(irc_session_t *session, const char *event, const 
 static void irc_mode_callback(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count) 
 {
     options.connected = true;
-    if (count == 0) debug("irc channel event[0]: %s: %s\n", event, origin);
-    if (count == 1) debug("irc channel event[1]: %s: %s: %s\n", event, origin, params[0]);
-    if (count == 2) debug("irc channel event[2]: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
-    if (count >= 3) debug("irc channel event[3]: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
-
-    if (options.showjoins)
+    if (strstr(event, "JOIN") == event)
     {
-        if (strstr(event, "JOIN") == event)
+        if (options.showjoins)
         {
             char nick[100];
             irc_target_get_nick(origin, nick, sizeof(nick) -1);
             printf("%s has joined %s\n", nick, params[0]);
             fflush(stdout);
         }
+    }
+    else
+    {
+        if (count == 0) debug("irc channel event[0]: %s: %s\n", event, origin);
+        if (count == 1) debug("irc channel event[1]: %s: %s: %s\n", event, origin, params[0]);
+        if (count == 2) debug("irc channel event[2]: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
+        if (count >= 3) debug("irc channel event[3]: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
     }
 }
 

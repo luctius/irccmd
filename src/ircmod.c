@@ -14,21 +14,21 @@ static time_t last_contact = 0;
 
 void irc_general_event(irc_session_t *session, const char *event, const char *origin, const char **params, unsigned int count)
 {
-    if (count == 0) debug("irc general event[0]: %s: %s\n", event, origin);
-    if (count == 1) debug("irc general event[1]: %s: %s: %s\n", event, origin, params[0]);
-    if (count == 2) debug("irc general event[2]: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
-    if (count >= 3) debug("irc general event[3]: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
-
     if (strstr(event, "PONG") == event)
     {
         last_contact = time(NULL);
+    }
+    else
+    {
+        if (count == 0) debug("event[0]: %s: %s\n", event, origin);
+        if (count == 1) debug("event[1]: %s: %s: %s\n", event, origin, params[0]);
+        if (count == 2) debug("event[2]: %s: %s: %s: %s\n", event, origin, params[0], params[1]);
+        if (count >= 3) debug("event[3]: %s: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
     }
 }
 
 void irc_general_event_numeric (irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count)
 {
-	debug("irc numeric event: %d: %s\n", event, origin);
-
     if (event == LIBIRC_RFC_ERR_NICKNAMEINUSE) /* Nick allready in use */
     {
         warning("Nick allready in use\n");
@@ -70,6 +70,20 @@ void irc_general_event_numeric (irc_session_t * session, unsigned int event, con
             }
             else options.running = false;
         }
+    }
+    else if (event == LIBIRC_RFC_RPL_MOTD)
+    {
+        if (options.verbose || options.interactive)
+        {
+            printf("%s\n", params[1]);
+        }
+    }
+    else
+    {
+        if (count == 0) debug("event[0]: %d: %s\n", event, origin);
+        if (count == 1) debug("event[1]: %d: %s: %s\n", event, origin, params[0]);
+        if (count == 2) debug("event[2]: %d: %s: %s: %s\n", event, origin, params[0], params[1]);
+        if (count >= 3) debug("event[3]: %d: %s: %s: %s: %s\n", event, origin, params[0], params[1], params[2]);
     }
 }
 
