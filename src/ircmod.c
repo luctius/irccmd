@@ -17,6 +17,7 @@ void irc_general_event(irc_session_t *session, const char *event, const char *or
     if (strstr(event, "PONG") == event)
     {
         last_contact = time(NULL);
+        options.ping_count++;
     }
     else
     {
@@ -213,6 +214,7 @@ bool check_irc_connection()
         {
             warning("no connection with the server yet; retrying (%ld seconds)\n", timeout);
             options.botname_nr = 0;
+
             return create_irc_session();
         }
     }
@@ -228,7 +230,12 @@ int process_irc(fd_set *in_set, fd_set *out_set)
         if ( (retval = irc_process_select_descriptors(session, in_set, out_set) ) != 0)
         {
             int err = irc_errno(session);
-            if (err != 0) error("process irc[%d]: %s\n", retval, irc_strerror(err ) );
+            //if (err != 0) error("process irc[%d]: %s\n", err, irc_strerror(err ) );
+            if (err == 4)
+            {
+                options.connected = false;
+                error("Could not connect to server.\n");
+            }
         }
     }
 

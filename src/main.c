@@ -48,6 +48,7 @@ struct config_options options =
 
     .current_channel_id  = 0,
     .connection_timeout = CONFIG_CONNECTION_TIMEOUT ,
+    .ping_count      = 0,
 };
      
 /** 
@@ -214,32 +215,41 @@ static int prog_main()
         tv.tv_sec = timeout;
         tv.tv_usec = 0;
 
-        FD_ZERO(&readset);
-        FD_ZERO(&writeset);
-
-        if ( (options.mode & input) > 0)
+        if (is_irc_connected() )
         {
-            FD_SET(STDIN_FILENO, &readset);
-        }
+            FD_ZERO(&readset);
+            FD_ZERO(&writeset);
 
-        add_irc_descriptors(&readset, &writeset, &maxfd);
-        result = select(maxfd +1, &readset, &writeset, NULL, &tv);
-
-        if (result == 0)
-        {
-        } 
-        else if (result < 0)
-        {
-            if (options.running) error("error on select\n");
-        }
-        else 
-        {
-            process_irc(&readset, &writeset);
-
-            if (FD_ISSET(STDIN_FILENO, &readset) )
+            if ( (options.mode & input) > 0)
             {
-                process_input();
+                FD_SET(STDIN_FILENO, &readset);
             }
+
+            add_irc_descriptors(&readset, &writeset, &maxfd);
+            result = select(maxfd +1, &readset, &writeset, NULL, &tv);
+
+            if (result == 0)
+            {
+            } 
+            else if (result < 0)
+            {
+                if (options.running) error("error on select\n");
+            }
+            else 
+            {
+                if (process_irc(&readset, &writeset) != 0)
+                {
+                }
+
+                if (FD_ISSET(STDIN_FILENO, &readset) )
+                {
+                    process_input();
+                }
+            }
+        }
+        else
+        {
+            sleep(1);
         }
 
         now = time(NULL);

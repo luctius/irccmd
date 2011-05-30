@@ -66,6 +66,8 @@ struct config_options
     int botname_nr;
     int current_channel_id;
     time_t connection_timeout;
+
+    uint64_t ping_count;
 };
 
 extern struct config_options options;
