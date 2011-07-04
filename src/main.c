@@ -49,6 +49,9 @@ struct config_options options =
     .current_channel_id  = 0,
     .connection_timeout = CONFIG_CONNECTION_TIMEOUT ,
     .ping_count      = 0,
+
+    .no_pluginpaths   = 0,
+    .no_plugins       = 0,
 };
      
 /** 
@@ -358,7 +361,6 @@ int main(int argc, char **argv)
         const char *temp[] = {"none", "input", "output", "both"};
         verbose("mode is set to '%s'\n", temp[options.mode]);
     }
-
 
     /*let's fire it up*/
     if (options.running)

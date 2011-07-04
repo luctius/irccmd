@@ -21,5 +21,15 @@ settings = {
         name    = "#cargate",
         },
     },
+
+    plugin_path =
+    {
+        "/usr/share/irccmd/plugins/",
+    },
+
+    plugin =
+    {
+        "crc",
+    },
 }  
 

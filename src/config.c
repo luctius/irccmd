@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 #include "config.h"
 #include "configdefaults.h"
@@ -240,6 +242,7 @@ int read_config_file(const char *path)
 
         options.botname[MAX_BOT_NAMELEN -1] = '\0';
 
+        /*channels and channel passwords*/
         for (counter = 0; counter < MAX_CHANNELS; counter++)
         {
             char name_buff[strlen(basestr) + strlen(namestr) +2];
@@ -260,6 +263,40 @@ int read_config_file(const char *path)
             }
         }
 
+        debug("creating plugin paths\n");
+        /* plugin paths */
+        basestr = "settings.plugin_path[%d]";
+        for (counter = options.no_pluginpaths; counter < MAX_CHANNELS; counter++)
+        {
+            char pluginpath[strlen(basestr) +10];
+            (void) snprintf(pluginpath, sizeof(pluginpath) -1, basestr, counter +1);
+            strncpy(options.pluginpaths[counter], lua_stringexpr(L, pluginpath, options.pluginpaths[counter]), MAX_PATH_LEN);
+
+            if (strlen(options.pluginpaths[counter]) == 0) counter = MAX_CHANNELS;
+            else
+            {
+                options.no_pluginpaths = counter +1;
+                debug("fetching %s: %s\n", pluginpath, options.pluginpaths[counter]);
+            }
+        }
+
+        debug("creating plugins\n");
+        /* plugins */
+        basestr = "settings.plugin[%d]";
+        for (counter = options.no_plugins; counter < MAX_CHANNELS; counter++)
+        {
+            char plugin[strlen(basestr) +10];
+            (void) snprintf(plugin, sizeof(plugin) -1, basestr, counter +1);
+            strncpy(options.plugins[counter], lua_stringexpr(L, plugin, options.plugins[counter]), MAX_CHANNELS_NAMELEN);
+
+            if (strlen(options.plugins[counter]) == 0) counter = MAX_CHANNELS;
+            else
+            {
+                options.no_plugins = counter +1;
+                debug("fetching %s: %s\n", plugin, options.plugins[counter]);
+            }
+        }
+
         debug("number of channels to join: %d\n", options.no_channels);
         lua_close(L);
     }
@@ -269,5 +306,62 @@ int read_config_file(const char *path)
     }
 
     return  errorcode;
+}
+
+static char *execute_lua_string_plugin(const char *file, char *string)
+{
+    /* initialize Lua */
+    lua_State *L = lua_open();
+    /* load Lua base libraries */
+    luaL_openlibs(L);
+    
+    /* load the script */
+    (void)luaL_dofile(L, file);
+    char *retstr = string;
+
+    if (L != NULL)
+    {
+        /* the function name */
+        lua_getglobal(L, "plugin_string_exec");
+        /* the first argument */
+        lua_pushstring(L, string);
+        /* call the function with 2
+           arguments, return 1 result */
+        lua_call(L, 1, 1);
+        /* get the result */
+
+        if (lua_isstring(L, -1) == 1) retstr = lua_tostring(L, -1);
+        lua_pop(L, 1);
+        lua_close(L);
+    }
+    return retstr;
+}
+
+char *execute_str_plugins(char *string)
+{
+    int plugincounter;
+    int pathcounter;
+    char *retstr = string;
+
+    for (plugincounter = 0; plugincounter < options.no_plugins; plugincounter++)
+    {
+        char *basestr = "%s/%s.lua";
+        for (pathcounter = 0; pathcounter < options.no_pluginpaths; pathcounter++)
+        {
+            char plugin[strlen(options.pluginpaths[pathcounter]) + strlen(options.plugins[plugincounter]) +strlen(basestr) +2];
+            (void) snprintf(plugin, sizeof(plugin) -1, basestr, options.pluginpaths[pathcounter], options.plugins[plugincounter]);
+
+            debug("testing: %s\n", plugin);
+
+            struct stat sts;
+            if (!(stat(plugin, &sts) == -1 && errno == ENOENT))
+            {
+                /*plugin file exists*/
+                retstr = execute_lua_string_plugin(plugin, retstr);
+                pathcounter = options.no_pluginpaths;
+            }
+        }
+    }
+    return retstr;
 }
 

@@ -12,6 +12,8 @@
 #include "commands.h"
 #include "input.h"
 
+#include "config.h"
+
 /* Filescope variables */
 static char *prompt = NULL;
 static int completion_index = 0;
@@ -116,7 +118,7 @@ void process_input()
         {
             if (options.running)
             {
-                send_irc_message(buff);
+                send_irc_message(execute_str_plugins(buff) );
             }
         }
     }

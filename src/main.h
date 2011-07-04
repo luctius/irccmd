@@ -11,6 +11,7 @@
 #define MAX_SERVER_NAMELEN (20)
 #define MAX_BOT_NAMELEN (9)
 #define MAX_PASSWD_LEN (20)
+#define MAX_PATH_LEN (100)
 
 #define OUTPUT_TIME_DIV 10000
 
@@ -62,6 +63,11 @@ struct config_options
     char serverpassword[MAX_PASSWD_LEN];
     char channels[MAX_CHANNELS][MAX_CHANNELS_NAMELEN];
     char channelpasswords[MAX_CHANNELS][MAX_PASSWD_LEN];
+
+    int no_pluginpaths;
+    int no_plugins;
+    char pluginpaths[MAX_CHANNELS][MAX_PATH_LEN];     /* Size does not relate to nr of channels */
+    char plugins[MAX_CHANNELS][MAX_CHANNELS_NAMELEN];   /* Size does not relate to nr of channels */
 
     int botname_nr;
     int current_channel_id;
