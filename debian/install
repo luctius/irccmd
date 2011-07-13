@@ -1,2 +1,4 @@
 src/irccmd        usr/bin/
 irccmd.cnf        etc/irccmd/
+irccmd.cnf        usr/share/irccmd/
+plugins           usr/share/irccmd/

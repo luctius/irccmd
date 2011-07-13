@@ -33,5 +33,6 @@
 #define CONFIG_MAXLINES  0
 
 #define CONFIG_CONNECTION_TIMEOUT 200
+#define CONFIG_OUTGOING_FLOOD_TIMEOUT 0
 
 #endif /* configdefaults_h_ */

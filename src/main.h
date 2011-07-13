@@ -64,6 +64,7 @@ struct config_options
     char channels[MAX_CHANNELS][MAX_CHANNELS_NAMELEN];
     char channelpasswords[MAX_CHANNELS][MAX_PASSWD_LEN];
 
+    bool enableplugins;
     int no_pluginpaths;
     int no_plugins;
     char pluginpaths[MAX_CHANNELS][MAX_PATH_LEN];     /* Size does not relate to nr of channels */
@@ -74,6 +75,8 @@ struct config_options
     time_t connection_timeout;
 
     uint64_t ping_count;
+
+    int output_flood_timeout;
 };
 
 extern struct config_options options;

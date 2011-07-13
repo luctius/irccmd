@@ -118,6 +118,7 @@ void process_input()
         {
             if (options.running)
             {
+                usleep(options.output_flood_timeout * 1000);
                 send_irc_message(execute_str_plugins(buff) );
             }
         }

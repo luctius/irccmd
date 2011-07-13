@@ -1,3 +1,17 @@
+irccmd (0.0.9-7) maverick; urgency=low
+
+  * fixed bug in the crc plugin
+  * fixed bug in packaging incorrectly not requireing lua bit library
+
+ -- Cor Peters <cor@cor>  Mon, 04 Jul 2011 15:16:13 +0200
+
+irccmd (0.0.9-6) maverick; urgency=low
+
+  * Added alpha state basic plugin structure
+  * Added crc plugin
+
+ -- Cor Peters <cor@cor>  Mon, 04 Jul 2011 14:20:32 +0200
+
 irccmd (0.0.9-5) maverick; urgency=low
 
   * Fixed interactive input

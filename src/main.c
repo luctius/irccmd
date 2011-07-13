@@ -46,12 +46,13 @@ struct config_options options =
     .botname_nr       = -1,
     .maxlines         = CONFIG_MAXLINES,
 
-    .current_channel_id  = 0,
-    .connection_timeout = CONFIG_CONNECTION_TIMEOUT ,
-    .ping_count      = 0,
-
+    .enableplugins    = true,
     .no_pluginpaths   = 0,
     .no_plugins       = 0,
+    .current_channel_id  = 0,
+    .connection_timeout = CONFIG_CONNECTION_TIMEOUT,
+    .ping_count      = 0,
+    .output_flood_timeout = CONFIG_OUTGOING_FLOOD_TIMEOUT,
 };
      
 /** 

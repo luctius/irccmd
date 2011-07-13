@@ -235,7 +235,10 @@ int read_config_file(const char *path)
         options.showchannel                 = lua_boolexpr(L     , "settings.showchannel"    , options.showchannel);
         options.shownick                    = lua_boolexpr(L     , "settings.shownick"       , options.shownick);
         options.showjoins                   = lua_boolexpr(L     , "settings.showjoins"      , options.showjoins);
+        options.enableplugins               = lua_boolexpr(L     , "settings.plugins"        , options.enableplugins);
         (void) lua_intexpr(L                                     , "settings.port"           , &options.port);
+        (void) lua_intexpr(L                                     , "settings.oflood"         , &options.output_flood_timeout);
+        (void) lua_intexpr(L                                     , "settings.timeout"        , &options.connection_timeout);
         strncpy(options.server              , lua_stringexpr(L   , "settings.server"         , options.server)         , MAX_SERVER_NAMELEN);
         strncpy(options.botname             , lua_stringexpr(L   , "settings.name"           , options.botname)        , MAX_BOT_NAMELEN);
         strncpy(options.serverpassword      , lua_stringexpr(L   , "settings.serverpassword" , options.serverpassword) , MAX_PASSWD_LEN);
@@ -343,25 +346,28 @@ char *execute_str_plugins(char *string)
     int pathcounter;
     char *retstr = string;
 
-    for (plugincounter = 0; plugincounter < options.no_plugins; plugincounter++)
+    if (options.enableplugins)
     {
-        char *basestr = "%s/%s.lua";
-        for (pathcounter = 0; pathcounter < options.no_pluginpaths; pathcounter++)
+        for (plugincounter = 0; plugincounter < options.no_plugins; plugincounter++)
         {
-            char plugin[strlen(options.pluginpaths[pathcounter]) + strlen(options.plugins[plugincounter]) +strlen(basestr) +2];
-            (void) snprintf(plugin, sizeof(plugin) -1, basestr, options.pluginpaths[pathcounter], options.plugins[plugincounter]);
-
-            debug("testing: %s\n", plugin);
-
-            struct stat sts;
-            if (!(stat(plugin, &sts) == -1 && errno == ENOENT))
+            char *basestr = "%s/%s.lua";
+            for (pathcounter = 0; pathcounter < options.no_pluginpaths; pathcounter++)
             {
-                /*plugin file exists*/
-                retstr = execute_lua_string_plugin(plugin, retstr);
-                pathcounter = options.no_pluginpaths;
+                char plugin[strlen(options.pluginpaths[pathcounter]) + strlen(options.plugins[plugincounter]) +strlen(basestr) +2];
+                (void) snprintf(plugin, sizeof(plugin) -1, basestr, options.pluginpaths[pathcounter], options.plugins[plugincounter]);
+
+                debug("testing: %s\n", plugin);
+
+                struct stat sts;
+                if (!(stat(plugin, &sts) == -1 && errno == ENOENT))
+                {
+                    /*plugin file exists*/
+                    retstr = execute_lua_string_plugin(plugin, retstr);
+                    pathcounter = options.no_pluginpaths;
+                }
             }
         }
     }
-    return retstr;
+    return string;
 }
 

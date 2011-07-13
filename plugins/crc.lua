@@ -45,21 +45,12 @@ local function build_crc(s)
     return crc
 end
 
-local function is_sensor_packet(s)
-    local retval = true
-    if type(s) == "string" then
-        if s:sub(1,1) ~= '$' then retval = false
-        end
-    else retval = false
-    end
-    return retval
-end
-
 local function sensor_packet_crc(s)
     if type(s) == "string" then
         local packet = s:match("%$.*%*CRC%*")
-        if (is_sensor_packet(packet) ) then
-            s=s:gsub("%*CRC%*", string.format("*%4X*", build_crc(packet:sub(2,packet:len() -5))):gsub(" ", "0"))
+        if (packet ~= nil) then
+            local crc=string.format("*%4X*", build_crc(packet:sub(2,packet:len() -5))):gsub(" ", "0")
+            s=s:gsub("%*CRC%*", crc)
             return s
         end
     end
@@ -71,5 +62,5 @@ function plugin_string_exec(s)
     return sensor_packet_crc(s)
 end
 
---print(sensor_packet_crc("$1,1,1303984623,1,stop*CRC*") )
---$1,1,1303984623,1,stop*0DED*
+print(plugin_string_exec("$1,3,1,1,stop*55D9*"))
+

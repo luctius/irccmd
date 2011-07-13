@@ -15,8 +15,10 @@ struct arg_lit  *keepreading;
 struct arg_lit  *showchannel;
 struct arg_lit  *shownick;
 struct arg_lit  *showjoins;
+struct arg_lit  *disable_plugins;
 struct arg_int  *lines;
 struct arg_int  *timeout;
+struct arg_int  *output_flood;
 struct arg_rem  *remark1;
 
 struct arg_lit  *silent;
@@ -54,6 +56,7 @@ int arg_parseprimairy(int argc, char **argv)
     port            = arg_int0("p"  , "port"            , XSTR(CONFIG_PORT)            , "set the port of the irc server");
     botname         = arg_str0("n"  , "name"            , CONFIG_BOTNAME               , "set the botname");
     timeout         = arg_int0("t"  , "timeout"         , XSTR(CONFIG_CONNECTION_TIMEOUT), "set the maximum timeout of the irc connection");
+    output_flood    = arg_int0(""   , "oflood"          , XSTR(CONFIG_OUTGOING_FLOOD_TIMEOUT), "sets the delay in msec between outgoing message");
     lines           = arg_int0("l"  , "lines"           , "0"                          , "quit when the number of messages has exceeded <lines>. "
                                                                                          "Off when set to zero.");
     noninteractive  = arg_lit0("N"  , "noninteractive"                                 , "will force a non-interactive session");
@@ -68,6 +71,8 @@ int arg_parseprimairy(int argc, char **argv)
                                                                                         "set an irc channel, can be applied multiple "
                                                                                         "times, each for a new channel. An optional "
                                                                                         "password can be supplied using a column (:) as seperator.");
+
+    disable_plugins = arg_lit0(""  , "disable_plugins"                                 , "Disables the use of plugins specified in the config files.");
     end             = arg_end(40);
 
 
@@ -85,6 +90,7 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = port;
         argtable[i++] = botname;
         argtable[i++] = timeout;
+        argtable[i++] = output_flood;
         argtable[i++] = lines;
         argtable[i++] = noninteractive;
         argtable[i++] = keepreading;
@@ -94,6 +100,7 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = server;
         argtable[i++] = serverpassword;
         argtable[i++] = channel;
+        argtable[i++] = disable_plugins;
 
         argtable[i++] = end;
     }
@@ -360,6 +367,15 @@ int arg_parsesecondary()
 		}
 	}
 
+	if (output_flood->count > 0)
+	{
+        if (options.running)
+        {
+			options.output_flood_timeout = output_flood->ival[0];
+			verbose("setting output flood timeout to %d\n", output_flood->ival[0]);
+		}
+	}
+
 	if (lines->count > 0)
 	{
         if (options.running)
@@ -369,6 +385,14 @@ int arg_parsesecondary()
 		}
 	}
 	
+    if (disable_plugins->count > 0)
+    {
+        if (options.running)
+        {
+            options.enableplugins = false;
+			verbose("setting disabling plugins\n");
+        }
+    }
     arg_clean();
 
     return exitcode;
