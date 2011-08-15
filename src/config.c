@@ -313,6 +313,8 @@ int read_config_file(const char *path)
 
 static char *execute_lua_string_plugin(const char *file, char *string)
 {
+    debug("giving %s the following input %s\n", file, string);
+
     /* initialize Lua */
     lua_State *L = lua_open();
     /* load Lua base libraries */
@@ -334,6 +336,7 @@ static char *execute_lua_string_plugin(const char *file, char *string)
         /* get the result */
 
         if (lua_isstring(L, -1) == 1) retstr = lua_tostring(L, -1);
+        debug("retstr: %s\n", retstr);
         lua_pop(L, 1);
         lua_close(L);
     }
@@ -368,6 +371,6 @@ char *execute_str_plugins(char *string)
             }
         }
     }
-    return string;
+    return retstr;
 }
 

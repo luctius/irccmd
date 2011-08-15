@@ -50,6 +50,7 @@ struct config_options options =
     .no_pluginpaths   = 0,
     .no_plugins       = 0,
     .current_channel_id  = 0,
+    .retry_init_connect = false,
     .connection_timeout = CONFIG_CONNECTION_TIMEOUT,
     .ping_count      = 0,
     .output_flood_timeout = CONFIG_OUTGOING_FLOOD_TIMEOUT,
@@ -205,12 +206,22 @@ static int prog_main()
 
     debug("starting main loop\n");
 
-    if (create_irc_session() == false)
+    bool connection_setup = false;
+    do
     {
-        error("irc connection setup has failed\n");
-        options.running = false;
+        if (create_irc_session() == false)
+        {
+            error("irc connection setup has failed\n");
+            if (options.retry_init_connect)
+            {
+                debug("irc retry sleep\n");
+                sleep(2);
+            }
+            else options.running = false;
+        }
+        else connection_setup = true;
     }
-    else usleep(100);
+    while (options.retry_init_connect == true && connection_setup == false && options.running == true);
 
     debug("starting loop\n");
     while (options.running)

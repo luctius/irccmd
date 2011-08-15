@@ -16,6 +16,7 @@ struct arg_lit  *showchannel;
 struct arg_lit  *shownick;
 struct arg_lit  *showjoins;
 struct arg_lit  *disable_plugins;
+struct arg_lit  *retry_init_connect;
 struct arg_int  *lines;
 struct arg_int  *timeout;
 struct arg_int  *output_flood;
@@ -73,6 +74,8 @@ int arg_parseprimairy(int argc, char **argv)
                                                                                         "password can be supplied using a column (:) as seperator.");
 
     disable_plugins = arg_lit0(""  , "disable_plugins"                                 , "Disables the use of plugins specified in the config files.");
+    retry_init_connect = arg_lit0("T"  , "try_connecting"                              , "Keep trying to connect to the irc server even though the initial connect failed. "
+                                                                                         "Normally, " PROG_STRING " retrys only when it has had contact with the server atleast once.");
     end             = arg_end(40);
 
 
@@ -101,6 +104,7 @@ int arg_parseprimairy(int argc, char **argv)
         argtable[i++] = serverpassword;
         argtable[i++] = channel;
         argtable[i++] = disable_plugins;
+        argtable[i++] = retry_init_connect;
 
         argtable[i++] = end;
     }
@@ -391,6 +395,15 @@ int arg_parsesecondary()
         {
             options.enableplugins = false;
 			verbose("setting disabling plugins\n");
+        }
+    }
+
+    if (retry_init_connect->count > 0)
+    {
+        if (options.running)
+        {
+            options.retry_init_connect = true;
+			verbose("setting retry initial connect\n");
         }
     }
     arg_clean();

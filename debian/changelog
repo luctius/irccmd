@@ -1,3 +1,9 @@
+irccmd (0.0.9-7ubuntu1) maverick; urgency=low
+
+  * Added options to keep retrying the initial connection if the server cannot be found.
+
+ -- Cor Peters <cor@cor>  Fri, 12 Aug 2011 10:50:53 +0200
+
 irccmd (0.0.9-7) maverick; urgency=low
 
   * fixed bug in the crc plugin

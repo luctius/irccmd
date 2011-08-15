@@ -74,8 +74,8 @@ struct config_options
     int current_channel_id;
     time_t connection_timeout;
 
+    bool retry_init_connect;
     uint64_t ping_count;
-
     int output_flood_timeout;
 };
 
