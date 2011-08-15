@@ -62,5 +62,5 @@ function plugin_string_exec(s)
     return sensor_packet_crc(s)
 end
 
-print(plugin_string_exec("$1,3,1,1,stop*55D9*"))
+--print(plugin_string_exec("$1,3,1,1,stop*55D9*"))
 
