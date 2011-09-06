@@ -80,6 +80,7 @@ void deinit_readline()
     {
         rl_callback_handler_remove();
         free(prompt);
+        prompt = NULL;
     }
 }
 

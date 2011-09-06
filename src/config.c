@@ -19,7 +19,7 @@
 */
 static const char* lua_stringexpr(lua_State *L, const char *expr, const char *def)
 {
-    const char* r = def;
+    const char* r = (const char *) def;
     char buf[256] = "";
 
     /* Assign the Lua expression to a Lua global variable. */
@@ -221,6 +221,7 @@ int read_config_file(const char *path)
     if (L != NULL)
     {
         int counter = 0;
+        const char *str = NULL;
         char *basestr = "settings.channels[%d].%s";
         char *namestr = "name";
         char *passwdstr = "password";
@@ -238,10 +239,12 @@ int read_config_file(const char *path)
         options.enableplugins               = lua_boolexpr(L     , "settings.plugins"        , options.enableplugins);
         (void) lua_intexpr(L                                     , "settings.port"           , &options.port);
         (void) lua_intexpr(L                                     , "settings.oflood"         , &options.output_flood_timeout);
-        (void) lua_intexpr(L                                     , "settings.timeout"        , &options.connection_timeout);
-        strncpy(options.server              , lua_stringexpr(L   , "settings.server"         , options.server)         , MAX_SERVER_NAMELEN);
-        strncpy(options.botname             , lua_stringexpr(L   , "settings.name"           , options.botname)        , MAX_BOT_NAMELEN);
+        (void) lua_intexpr(L                                     , "settings.timeout"        , (int *) &options.connection_timeout);
         strncpy(options.serverpassword      , lua_stringexpr(L   , "settings.serverpassword" , options.serverpassword) , MAX_PASSWD_LEN);
+
+        if ( (str = (const char *) lua_stringexpr(L, "settings.server",          options.server)  )        != options.server)         strncpy(options.server,         str, MAX_SERVER_NAMELEN);
+        if ( (str = (const char *) lua_stringexpr(L, "settings.name",            options.botname) )        != options.botname)        strncpy(options.botname,        str, MAX_BOT_NAMELEN);
+        if ( (str = (const char *) lua_stringexpr(L, "settings.serverpassword" , options.serverpassword) ) != options.serverpassword) strncpy(options.serverpassword, str, MAX_PASSWD_LEN);
 
         options.botname[MAX_BOT_NAMELEN -1] = '\0';
 
@@ -254,8 +257,8 @@ int read_config_file(const char *path)
             (void) snprintf(name_buff, sizeof(name_buff) -1, basestr, counter +1, namestr);
             (void) snprintf(passwd_buff, sizeof(passwd_buff) -1, basestr, counter +1, passwdstr);
 
-            strncpy(options.channels[counter],         lua_stringexpr(L, name_buff,   options.channels[counter]),         MAX_CHANNELS_NAMELEN);
-            strncpy(options.channelpasswords[counter], lua_stringexpr(L, passwd_buff, options.channelpasswords[counter]), MAX_PASSWD_LEN);
+            if ( (str = (const char *) lua_stringexpr(L, name_buff,   options.channels[counter]) )         != options.channels[counter])         strncpy(options.channels[counter],         str, MAX_CHANNELS_NAMELEN);
+            if ( (str = (const char *) lua_stringexpr(L, passwd_buff, options.channelpasswords[counter]) ) != options.channelpasswords[counter]) strncpy(options.channelpasswords[counter], str, MAX_PASSWD_LEN);
 
             if (strlen(options.channels[counter]) == 0) counter = MAX_CHANNELS;
             else
@@ -273,7 +276,7 @@ int read_config_file(const char *path)
         {
             char pluginpath[strlen(basestr) +10];
             (void) snprintf(pluginpath, sizeof(pluginpath) -1, basestr, counter +1);
-            strncpy(options.pluginpaths[counter], lua_stringexpr(L, pluginpath, options.pluginpaths[counter]), MAX_PATH_LEN);
+            if ( (str = (const char *) lua_stringexpr(L, pluginpath, options.pluginpaths[counter]) ) != options.pluginpaths[counter]) strncpy(options.pluginpaths[counter], str, MAX_PATH_LEN);
 
             if (strlen(options.pluginpaths[counter]) == 0) counter = MAX_CHANNELS;
             else
@@ -290,7 +293,7 @@ int read_config_file(const char *path)
         {
             char plugin[strlen(basestr) +10];
             (void) snprintf(plugin, sizeof(plugin) -1, basestr, counter +1);
-            strncpy(options.plugins[counter], lua_stringexpr(L, plugin, options.plugins[counter]), MAX_CHANNELS_NAMELEN);
+            if ( ( str = (const char *) lua_stringexpr(L, plugin, options.plugins[counter]) ) != options.plugins[counter]) strncpy(options.plugins[counter], str, MAX_CHANNELS_NAMELEN);
 
             if (strlen(options.plugins[counter]) == 0) counter = MAX_CHANNELS;
             else
@@ -335,7 +338,7 @@ static char *execute_lua_string_plugin(const char *file, char *string)
         lua_call(L, 1, 1);
         /* get the result */
 
-        if (lua_isstring(L, -1) == 1) retstr = lua_tostring(L, -1);
+        if (lua_isstring(L, -1) == 1) retstr = (char *) lua_tostring(L, -1);
         debug("retstr: %s\n", retstr);
         lua_pop(L, 1);
         lua_close(L);

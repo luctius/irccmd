@@ -299,6 +299,7 @@ static int prog_main()
 */
 int main(int argc, char **argv)
 {
+    //mtrace();
     struct sigaction setmask;
     int exitcode = 0;
 

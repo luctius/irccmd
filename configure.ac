@@ -1,5 +1,5 @@
 AC_INIT([irccmd], [1.0], [corpeters@incas3.eu])
-AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+AM_INIT_AUTOMAKE([foreign -Wall -Wextra -Werror])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -9,9 +9,9 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 AC_STRUCT_TM
 
-AC_MSG_CHECKING(whether compiler understands -Wall)
+AC_MSG_CHECKING(whether compiler understands -Wall and -Wextra)
 old_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS -Wall"
+CFLAGS="$CFLAGS -Wall -Wextra"
 AC_TRY_COMPILE([],[], AC_MSG_RESULT(yes), AC_MSG_RESULT(no), CFLAGS="$old_CFLAGS")
 
 PKG_CHECK_MODULES([lua], [lua], [], [PKG_CHECK_MODULES([lua], [lua5.1] )])

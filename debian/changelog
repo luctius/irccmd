@@ -1,3 +1,15 @@
+irccmd (0.0.9-8natty1) natty; urgency=low
+
+  * natty build
+
+ -- Cor Peters <corpeters@incas3.eu>  Mon, 29 Aug 2011 11:00:05 +0200
+
+irccmd (0.0.9-7ubuntu2) maverick; urgency=low
+
+  * fixed some more bugs with the crc plugin system.
+
+ -- cor <cor@cor>  Fri, 19 Aug 2011 10:15:59 +0200
+
 irccmd (0.0.9-7ubuntu1) maverick; urgency=low
 
   * Added options to keep retrying the initial connection if the server cannot be found.
