@@ -1,5 +1,5 @@
 AC_INIT([irccmd], [1.0], [corpeters@incas3.eu])
-AM_INIT_AUTOMAKE([foreign -Wall -Wextra -Werror])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -15,6 +15,7 @@ CFLAGS="$CFLAGS -Wall -Wextra"
 AC_TRY_COMPILE([],[], AC_MSG_RESULT(yes), AC_MSG_RESULT(no), CFLAGS="$old_CFLAGS")
 
 PKG_CHECK_MODULES([lua], [lua], [], [PKG_CHECK_MODULES([lua], [lua5.1] )])
+AC_SEARCH_LIBS( [luaL_loadstring], [lua5.1], [], [AC_MSG_ERROR("liblua5.1 is missing")])
 AC_SEARCH_LIBS( [arg_parse], [argtable argtable2], [], [AC_MSG_ERROR("Argtable2 is missing")])
 AC_SEARCH_LIBS( [irc_create_session], [ircclient ircclient0], [], [AC_MSG_ERROR("libircclient is missing")])
 AC_SEARCH_LIBS( [rl_callback_handler_install], [readline], [], [AC_MSG_ERROR("readline is missing")])
