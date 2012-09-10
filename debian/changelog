@@ -1,3 +1,27 @@
+irccmd (0.0.9-11maverick1) maverick; urgency=low
+
+  * rebuilt
+
+ -- Cor Peters <corpeters@incas3.eu>  Thu, 12 Jan 2012 10:29:30 +0100
+
+irccmd (0.0.9-10maverick1) maverick; urgency=low
+
+  * Downgraded an error to a warning when receiving an string with an channel but without an message.
+
+ -- Cor Peters <corpeters@incas3.eu>  Wed, 14 Sep 2011 10:54:48 +0200
+
+irccmd (0.0.9-9natty2) natty; urgency=low
+
+  * Fixed bug in the message retrieval after plugin execution.
+
+ -- Cor Peters <corpeters@incas3.eu>  Wed, 07 Sep 2011 10:55:05 +0200
+
+irccmd (0.0.9-9maverick1) maverick; urgency=low
+
+  * Fixed bug in the message retrieval after plugin execution.
+
+ -- Cor Peters <corpeters@incas3.eu>  Wed, 07 Sep 2011 10:52:17 +0200
+
 irccmd (0.0.9-8natty1) natty; urgency=low
 
   * natty build

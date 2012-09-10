@@ -11,6 +11,7 @@
 #include "ircmod.h"
 #include "commands.h"
 #include "input.h"
+#include "buffer.h"
 
 #include "config.h"
 
@@ -30,13 +31,13 @@ static char* ltrim(char* s)
 {
     char* newstart = s;
 
-    debug("old string: |%s|\n", s);
+    debug("before trimming |%s|\n", s);
 
-    while (isspace( *newstart) ) ++newstart; /* newstart points to first non-whitespace char (which might be '\0') */
-    memmove(s, newstart, strlen(newstart) + 1); /* don't forget to move the '\0' terminator*/
+    while (isspace( *newstart) ) ++newstart;                                  /* newstart points to first non-whitespace char (which might be '\0') */
+    memmove(s, newstart, strlen(newstart) + 1);                               /* don't forget to move the '\0' terminator */
     while (isspace(s[strlen(s) -1]) && strlen(s) > 0) s[strlen(s) -1] = '\0'; /* Remove trailing spaces */
 
-    debug("new string: |%s|\n", s);
+    debug("after trimming |%s|\n", s);
 
     return s;
 }
@@ -219,6 +220,7 @@ static void send_irc_message(char *msg)
     {
         if (msg != NULL)
         {
+            debug("sending message: %s\n", msg);
             msg = ltrim(msg);
 
             /* Check if the first non-white-space character is a '#' */
@@ -267,11 +269,10 @@ static void send_irc_message(char *msg)
     {
         debug("not connected to a channel yet; forgetting message\n");
     }
-
     if (error)
     {
-        error("failed to parse message\n");
-        options.running = false;
+        error("failed to parse message, forgetting...\n");
+        //options.running = false;
     }
 }
 

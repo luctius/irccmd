@@ -338,7 +338,7 @@ static char *execute_lua_string_plugin(const char *file, char *string)
         lua_call(L, 1, 1);
         /* get the result */
 
-        if (lua_isstring(L, -1) == 1) retstr = (char *) lua_tostring(L, -1);
+        if (lua_isstring(L, -1) == 1) retstr = strcpy(string, (char *) lua_tostring(L, -1));
         debug("retstr: %s\n", retstr);
         lua_pop(L, 1);
         lua_close(L);
@@ -363,7 +363,6 @@ char *execute_str_plugins(char *string)
                 (void) snprintf(plugin, sizeof(plugin) -1, basestr, options.pluginpaths[pathcounter], options.plugins[plugincounter]);
 
                 debug("testing: %s\n", plugin);
-
                 struct stat sts;
                 if (!(stat(plugin, &sts) == -1 && errno == ENOENT))
                 {

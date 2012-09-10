@@ -23,36 +23,36 @@
 */
 struct config_options options =
 {
-    .connected        = false,
-    .silent           = CONFIG_SILENT,            /**< If this member is set, the aplpication should only output irc output or errors. */ 
-    .debug            = CONFIG_DEBUG,             /**< If this is set, debug output will be send to stdout */ 
-    .verbose          = CONFIG_VERBOSE,           /**< if this is set, messages which would not be interresting to normal users can be shown */ 
-    .configfile       = CONFIG_FILE,              /**< This will define where to look for the config file */ 
+    .connected            = false,
+    .silent               = CONFIG_SILENT,            /**< If this member is set, the aplpication should only output irc output or errors. */
+    .debug                = CONFIG_DEBUG,             /**< If this is set, debug output will be send to stdout */
+    .verbose              = CONFIG_VERBOSE,           /**< if this is set, messages which would not be interresting to normal users can be shown */
+    .configfile           = CONFIG_FILE,              /**< This will define where to look for the config file */
 
-    .keepreading      = CONFIG_KEEPREADING,
-    .interactive      = true,
-    .showchannel      = CONFIG_SHOWCHANNEL,       /**< This will enable showing of the channel in the irc output */ 
-    .shownick         = CONFIG_SHOWNICK,          /**< This will enable showing of the nickname in the irc output */ 
-    .showjoins        = CONFIG_SHOWJOINS,         
+    .keepreading          = CONFIG_KEEPREADING,
+    .interactive          = true,
+    .showchannel          = CONFIG_SHOWCHANNEL,       /**< This will enable showing of the channel in the irc output */
+    .shownick             = CONFIG_SHOWNICK,          /**< This will enable showing of the nickname in the irc output */
+    .showjoins            = CONFIG_SHOWJOINS,
 
-    .mode             = CONFIG_MODE,              /**< this will define the mode of the application */ 
-    .port             = CONFIG_PORT,              /**< this will hold the port which should be used to connect to the irc server */ 
-    .server           = CONFIG_SERVER,            /**< this will hold the server url or ip which should be used to connect to the irc server */ 
-    .serverpassword   = CONFIG_SERVERPASSWORD,    /**< this will hold the password neccesary to connect to the irc server; this can be empty */ 
-    .channels         = {CONFIG_CHANNEL},         /**< this will hold the channel name, including '#' the bot would like to  join */ 
-    .channelpasswords = {CONFIG_CHANNELPASSWORD}, /**< this will hold the password neccesary to join the channel; this can be empty */ 
-    .no_channels      = 1,                        /**< this will hold the number of channels the bot would like to join */
-    .botname          = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */ 
-    .botname_nr       = -1,
-    .maxlines         = CONFIG_MAXLINES,
+    .mode                 = CONFIG_MODE,              /**< this will define the mode of the application */
+    .port                 = CONFIG_PORT,              /**< this will hold the port which should be used to connect to the irc server */
+    .server               = CONFIG_SERVER,            /**< this will hold the server url or ip which should be used to connect to the irc server */
+    .serverpassword       = CONFIG_SERVERPASSWORD,    /**< this will hold the password neccesary to connect to the irc server; this can be empty */
+    .channels             = {CONFIG_CHANNEL},         /**< this will hold the channel name, including '#' the bot would like to  join */
+    .channelpasswords     = {CONFIG_CHANNELPASSWORD}, /**< this will hold the password neccesary to join the channel; this can be empty */
+    .no_channels          = 1,                        /**< this will hold the number of channels the bot would like to join */
+    .botname              = CONFIG_BOTNAME,           /**< this will hold the bot nick name and should be a unique identifier */
+    .botname_nr           = -1,
+    .maxlines             = CONFIG_MAXLINES,
 
-    .enableplugins    = true,
-    .no_pluginpaths   = 0,
-    .no_plugins       = 0,
-    .current_channel_id  = 0,
-    .retry_init_connect = false,
-    .connection_timeout = CONFIG_CONNECTION_TIMEOUT,
-    .ping_count      = 0,
+    .enableplugins        = true,
+    .no_pluginpaths       = 0,
+    .no_plugins           = 0,
+    .current_channel_id   = 0,
+    .retry_init_connect   = false,
+    .connection_timeout   = CONFIG_CONNECTION_TIMEOUT,
+    .ping_count           = 0,
     .output_flood_timeout = CONFIG_OUTGOING_FLOOD_TIMEOUT,
 };
      
