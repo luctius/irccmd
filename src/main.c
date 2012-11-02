@@ -336,6 +336,7 @@ int main(int argc, char **argv)
         }
     }
 
+    /* different verbosity levels */
     {
         if (options.silent)
         {
